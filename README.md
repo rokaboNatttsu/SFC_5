@@ -29,7 +29,7 @@
 - カレツキアンモデルの賃金主導型と利潤主導型が再現されているかどうか確認
   - 再現されないなら、それはなぜかを考察
     - 企業の内部資金がネックになって投資量が決まるときは利潤を増やすほど経済成長し、消費需要がネックになって投資量が決まるときは賃金を増やすほど経済成長する、というのが自分の直感ではある。内部資金と需要の一次結合で投資水準を決めるという仮定をカレツキアンモデルは採用しているようだが（要確認）カレツキアンモデルが示す性質はその仮定に決定的に依存しているのではないか？
-      - $\epsilon_3$ を大きくすると賃金分配率が上がる。このパラメータで調整する
+      - $\epsilon_2$ を大きくすると賃金分配率が上がる。このパラメータで調整する
     - そもそも技術や制度に由来する一人当たりの生産能力自体がネックになっている場合は、利潤分配率や労働分配率と技術進歩の速度を関連付けない限り、利潤主導型とも賃金主導型とも異なる成長が起こるはず。
   - 賃金主導型成長だけ再現されるなら、その理由を考察
     - 賃金主導型成長が起こる条件を帰納的に探す
@@ -40,31 +40,33 @@
 
 # 3. 行動方程式、上から計算
 
-- $\zeta_2 = \zeta_{2-1} (1 + \zeta_3 \cdot abs(randn()))$
-- $\zeta_4 = \zeta_{4-1} (1 + \zeta_3 \cdot abs(randn()))$
-- $p = p_{-1} \exp\{\mu_3 \min(1, \max(u_{c-1}^e, \frac{C_{w-1}^D + C_{i-1}^D + G_{-1}^D}{p_{-1} \zeta_{2-1}}) - u^T)\}$
-- $p_k = p_{k-1} \exp\{\mu_3 \min(1, \max(u_{k-1}^e, \frac{I_{f-1}^D + I_{g-1}^D}{p_{k-1} \zeta_{4-1}}) - u^T)\}$
-- $W_c = (1 - \epsilon_1)W_{c-1} + \epsilon_1 \cdot \max(0, \epsilon_3(W_{c-1} + \Pi_{c-1}))$
-- $W_k = (1 - \epsilon_1)W_{k-1} + \epsilon_1 \cdot \max(0, \epsilon_3(W_{k-1} + \Pi_{k-1}))$
-- $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_2(\Pi_{b-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
-- $w_g = w_{g-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
-- $g^D = g^D_{-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
-- $C_w^D = ((1 - \alpha_5) C_{w-1}^D + \alpha_5 \cdot \max\{0, \alpha_1 (W^e-T_{iw}^e-T_{ew}^e-r L_{w-1}) + \alpha_2 (M_{w-1} + H_{w-1} - L_{w-1})\}) \frac{C_{w-1}}{C_{w-1}-\Delta C_{w-1}}$
-- $C_i^D = ((1 - \alpha_5) C_{i-1}^D + \alpha_5 \cdot \max(0, \alpha_3 (\Pi_{ci}^e+\Pi_{ki}^e-T_{ii}^e-T_{ei}^e) + (\alpha_4 + \alpha_6 (\frac{E_{ci-1}}{E_{c-1}}+\frac{E_{ki-1}}{E_{k-1}})) M_{i-1})) \frac{C_{w-1}}{C_{w-1}-\Delta C_{w-1}}$
-- $C_w = \frac{C_w^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
-- $C_i = \frac{C_i^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
-- $G = \frac{G^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
+- $\zeta_2 = \zeta_{2-1} (1 + \zeta_4 \cdot abs(randn()))$
+- $\zeta_3 = \zeta_{4-1} (1 + \zeta_4 \cdot abs(randn()))$
+- $W_c = (1 - \epsilon_1)W_{c-1} + \epsilon_1 \cdot \max(0, \epsilon_2(W_{c-1} + \Pi_{c-1}))$
+- $W_k = (1 - \epsilon_1)W_{k-1} + \epsilon_1 \cdot \max(0, \epsilon_2(W_{k-1} + \Pi_{k-1}))$
+- $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_3(\Pi_{b-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
 - $T_{ec} = \gamma_1 K_{c-1}$
 - $T_{ek} = \gamma_1 K_{k-1}$
 - $T_{ei} = \gamma_2 (M_{i-1} + E_{i-1})$
 - $T_{ew} = \gamma_2 (M_{w-1} + H_{w-1})$
+- $p = \frac{W_c+T_{ec}+T_{fc}^e+r L_{c-1}}{c^e+g^e}$
+  - $p = p_{-1} \exp\{\mu_3 \min(1, \max(u_{c-1}^e, \frac{C_{w-1}^D + C_{i-1}^D + G_{-1}^D}{p_{-1} \zeta_{2-1}}) - u^T)\}$
+- $p_k = \frac{W_k+T_{ek}+T_{fk}^e+r L_{k-1}}{i_c^e+i_g^e}$
+  - $p_k = p_{k-1} \exp\{\mu_3 \min(1, \max(u_{k-1}^e, \frac{I_{f-1}^D + I_{g-1}^D}{p_{k-1} \zeta_{4-1}}) - u^T)\}$
+- $w_g = w_{g-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
+- $g^D = g^D_{-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
+- $C_w^D = ((1 - \alpha_6) C_{w-1}^D + \alpha_6 \cdot \max\{0, \alpha_1 (W^e-T_{iw}^e-T_{ew}^e-r L_{w-1}) + \alpha_2 (M_{w-1} + H_{w-1} - L_{w-1})\}) \frac{C_{w-1}}{C_{w-1}-\Delta C_{w-1}}$
+- $C_i^D = ((1 - \alpha_6) C_{i-1}^D + \alpha_6 \cdot \max(0, \alpha_3 (\Pi_{ci}^e+\Pi_{ki}^e-T_{ii}^e-T_{ei}^e) + (\alpha_4 + \alpha_5 (\frac{E_{ci-1}}{E_{c-1}}+\frac{E_{ki-1}}{E_{k-1}})) M_{i-1})) \frac{C_{w-1}}{C_{w-1}-\Delta C_{w-1}}$
+- $C_w = \frac{C_w^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
+- $C_i = \frac{C_i^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
+- $G = \frac{G^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
 - $i_c^D = btw(0, (u_{c-1} - u^T)k_{c-1} + \beta_1 k_{c-1}, \beta_2 \frac{M_{c-1} - L_{c-1}}{p})$
 - $i_k^D = btw(0, (u_{k-1} - u^T)k_{k-1} + \beta_1 k_{k-1}, \beta_2 \frac{M_{k-1} - L_{k-1}}{p_k})$
 - $i_g^D = i_{g-1}(1 + \delta_1 - \delta_2 \frac{p_k-p_{k-1}}{p_{k-1}})$
-- $i_c = \frac{i_c^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_4)})}$
-- $i_k = \frac{i_k^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_4)})}$
-- $i_g = \frac{i_g^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_4)})}$
-- $\Delta e = \max(0, \frac{\iota_8 (I_f-\beta_1 K_{f-1})}{p_{e-1}}) - \max(0, \frac{\iota_9 (M_{f-1} - L_{f-1})}{p_{e-1}} - \iota_{10} c)$
+- $i_c = \frac{i_c^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_3)})}$
+- $i_k = \frac{i_k^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_3)})}$
+- $i_g = \frac{i_g^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_3)})}$
+- $\Delta e = \max(0, \frac{\kappa_1 (I_f-\beta_1 K_{f-1})}{p_{e-1}}) - \max(0, \frac{\kappa_2 (M_{f-1} - L_{f-1})}{p_{e-1}} - \kappa_3 c)$
 - $T_{ii} = \tau_1 \Pi_{i-1}$
 - $T_{iw} = \tau_1 W_{-1}$
 - $T_{fc} = \tau_2 (C+G-W_c-T_{ec}-r L_{c-1})$
@@ -76,25 +78,25 @@
 - $T_{fb} = max(0, \tau_2 (\Pi_{cb} + \Pi_{kb} + r L_{-1} - W_b + \Delta p_{ec} e_{cb-1} + \Delta p_{ek} e_{kb-1}))$
 - $H_w = \iota_1 C_w$
 - $L_w = \iota_2 W$
-- $E_{ci}^T= \iota_3 NW_i^e \frac{C+G}{C+G+I_c+I_g}$
-- $E_{ki}^T= \iota_3 NW_i^e \frac{I_c+I_g}{C+G+I_c+I_g}$
-- $E_{cb}^T = ((1 - \iota_7) E_{cb-1} + \iota_7 \frac{r_{E-1}}{r_{-1} + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{c-1}}{E_{c-1}+E_{k-1}}$
-- $E_{kb}^T = ((1 - \iota_7) E_{kb-1} + \iota_7 \frac{r_{E-1}}{r_{-1} + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{k-1}}{E_{c-1}+E_{k-1}}$
+- $E_{ci}^T= \kappa_4 NW_i^e \frac{C+G}{C+G+I_c+I_g}$
+- $E_{ki}^T= \kappa_4 NW_i^e \frac{I_c+I_g}{C+G+I_c+I_g}$
+- $E_{cb}^T = ((1 - \kappa_5) E_{cb-1} + \kappa_5 \frac{r_{E-1}}{r_{-1} + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{c-1}}{E_{c-1}+E_{k-1}}$
+- $E_{kb}^T = ((1 - \kappa_5) E_{kb-1} + \kappa_5 \frac{r_{E-1}}{r_{-1} + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{k-1}}{E_{c-1}+E_{k-1}}$
 - $p_{ec} = \frac{E_{ci}^T + E_{cb}^T}{e_c}$
 - $p_{ek} = \frac{E_{ki}^T + E_{kb}^T}{e_k}$
-- $E_{ci} = min(\iota_3 NW_i \frac{C+G}{C+G+I_c+I_g}, E_c)$
-- $E_{ki} = min(\iota_3 NW_i \frac{I_c+I_g}{C+G+I_c+I_g}, E_k)$
+- $E_{ci} = min(\kappa_4 NW_i \frac{C+G}{C+G+I_c+I_g}, E_c)$
+- $E_{ki} = min(\kappa_4 NW_i \frac{I_c+I_g}{C+G+I_c+I_g}, E_k)$
 - $M_i = NW_i - E_{ci} - E_{ki}$
-- $L_c^D = (1 - \iota_4)L_{c-1}^D + \iota_4 max(0, \iota_{11} (I_c + W_c + T_{ec} + T_{fc} + r L_{c-1}) - M_{c-1})$
+- $L_c^D = (1 - \iota_4)L_{c-1}^D + \iota_4 max(0, \iota_3 (I_c + W_c + T_{ec} + T_{fc} + r L_{c-1}) - M_{c-1})$
 - $L_c = btw(0, L_c^D, max(0, \iota_5 NL_c))$
-- $L_k^D = (1 - \iota_4)L_{k-1}^D + \iota_4 max(0, \iota_{11} (W_k+T_{ek}+T_{fk}+r L_{k-1}) - M_{k-1})$
+- $L_k^D = (1 - \iota_4)L_{k-1}^D + \iota_4 max(0, \iota_3 (W_k+T_{ek}+T_{fk}+r L_{k-1}) - M_{k-1})$
 - $L_k = btw(0, L_k^D, max(0, \iota_5 NL_k))$
 
 # 4. 定義式
 
 - $x^e = ((1 - \lambda_e) x^e_{-1} + \lambda_e x_{-1}) \frac{x_{-1}}{x_{-1}-\Delta x_{-1}}$
-- $u_c = \frac{c + g}{\zeta_1 k_{f-1}}$
-- $u_k = \frac{i_f}{\zeta_1 k_{f-1}}$
+- $u_c = \frac{c + g}{\zeta_1 k_{c-1}}$
+- $u_k = \frac{i_f}{\zeta_1 k_{k-1}}$
 - $NL_w = -C_w+W-T_{iw}-T_{ew}-r L_{w-1}$
 - $NL_i = -C_i-T_{ii}-T_{ei}+\Pi_i$
 - $NL_c = -I_c + \Pi_c$
@@ -266,8 +268,8 @@
 - $\alpha_2 = 0.1$
 - $\alpha_3 = 0.1$
 - $\alpha_4 = 0.02$
-- $\alpha_5 = 0.5$
-- $\alpha_6 = 0.1$
+- $\alpha_5 = 0.1$
+- $\alpha_6 = 0.5$
 - $\beta_1 = 0.05$
 - $\beta_2 = 0.5$
 - $\gamma_1 = 0.015$
@@ -275,26 +277,25 @@
 - $\delta_1 = 0.02$
 - $\delta_2 = 0.3$
 - $\epsilon_1 = 0.5$
-- $\epsilon_2 = 0.7$
-- $\epsilon_3 = 0.8$
+- $\epsilon_2 = 0.8$
+- $\epsilon_3 = 0.7$
 - $\epsilon_4 = 0.05$
 - $\zeta_1 = 1.0$
 - $\zeta_2 = 300.0$ (シミュレーションのための初期値)
-- $\zeta_3 = 0.023$
-- $\zeta_4 = 1.0$
+- $\zeta_3 = 1.0$
+- $\zeta_4 = 0.023$
 - $\theta_1 = 0.4$
 - $\theta_2 = 0.1$
 - $\iota_1 = 0.1$
 - $\iota_2 = 1.0$
-- $\iota_3 = 0.9$
+- $\iota_3 = 2.0$
 - $\iota_4 = 0.5$
 - $\iota_5 = 5.0$
-- $\iota_6 = 0.5$
-- $\iota_7 = 0.5$
-- $\iota_8 = 0.5$
-- $\iota_9 = 0.02$
-- $\iota_{10} = 0.02$
-- $\iota_{11} = 2.0$
+- $\kappa_1 = 0.5$
+- $\kappa_2 = 0.02$
+- $\kappa_3 = 0.02$
+- $\kappa_4 = 0.9$
+- $\kappa_5 = 0.5$
 - $\lambda_e = 0.5$
 - $\mu_1 = 0.3$
 - $\mu_2 = 0.1$
