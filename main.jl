@@ -1,120 +1,147 @@
 using StatsPlots
 
-T = 150
+T = 100
 
 #   パラメータ設定
-α1, α2, α3, α4, α5, α6 = 0.9, 0.1, 0.1, 0.02, 0.5, 0.2
-β1, β2 = 0.05, 0.5  #   0.05, 0.5
+α1, α2, α3, α4, α5, α6 = 0.9, 0.1, 0.1, 0.02, 0.1, 0.5
+β1, β2 = 0.05, 0.5
 γ1, γ2 = 0.015, 0.02
-δ1, δ2 = fill(0.02, T), 0.3  #   0.02, 0.3
-ϵ1, ϵ2, ϵ3, ϵ4 = 0.5, 0.7, fill(0.8, T), 0.05    #   0.5, 0.7, 0.8, 0.05
-ζ1, ζ2, ζ3 = 1.0, fill(300.0, T), 0.023   #   1.0, 300.0, 0.023     (ζ2[1] = k[1])
+δ1, δ2 = fill(0.02, T), 0.1
+ϵ1, ϵ2, ϵ3, ϵ4 = 0.5, 1.0, 0.7, 0.05
+ζ1, ζ2, ζ3, ζ4, ζ5 = 1.0, fill(150.0, T), fill(150.0, T), 0.023, 1.0
 for t = 2:T
-    ζ2[t] = ζ2[t-1]*(1 + ζ3*abs(randn()))
+    ζ2[t] = ζ2[t-1]*(1 + ζ4*abs(randn()))
+    ζ3[t] = ζ3[t-1]*(1 + ζ4*abs(randn()))
 end
-θ1, θ2 = 0.4, 0.1   #   0.4, 0.1
-ι1, ι2, ι3, ι4, ι5, ι6, ι7 = 0.1, 1.0, 0.9, 0.5, 10.0, 0.5, 0.5
+θ1, θ2 = 0.4, 0.1
+ι1, ι2, ι3, ι4, ι5 = 0.1, 1.0, 2.0, 0.5, 5.0
+κ1, κ2, κ3, κ4, κ5 = 0.5, 0.02, 0.02, 0.9, 0.5
 λe = 0.5
 μ1, μ2, μ3 = 0.3, 0.1, 0.5
 τ1, τ2 = 0.2, 0.2
 uT = 0.8
 G0 = 100.0
 r = 0.01
+muc, muk = 0.3, 0.3
 
 #   配列定義
+Wc, Wk, Wb, Wg, W, wg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Tew, Tei, Tec, Tek, Te = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+p, pk, pec, pek = zeros(T), zeros(T), zeros(T), zeros(T)
 G, GD, g, gD = zeros(T), zeros(T), zeros(T), zeros(T)
-Wf, Wg, Wb, W, wg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
 Cw, Ci, C, cw, ci, c, CwD, CiD = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-K, k = zeros(T), zeros(T)
-Mw, Mi, Mf, M = zeros(T), zeros(T), zeros(T), zeros(T)
-Ei, E, Eb, ei, e, eb = zeros(T), zeros(T), zeros(T), zeros(T), fill(100.0, T), zeros(T)
-Lw, Lf, L, LfD = zeros(T), zeros(T), zeros(T), zeros(T)
+Kc, Kk, Kg, kc, kk, kg, K, k = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Mw, Mi, Mc, Mk, M = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Eci, Ec, Ecb, Eki, Ek, Ekb, eci, ec, ecb, eki, ek, ekb = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Lw, Lc, Lk, L, LcD, LkD = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
 Hw, Hb, H = zeros(T), zeros(T), zeros(T)
-NWw, NWi, NWf, NWb, NWg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-NLw, NLi, NLf, NLb, NLg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-Tef, Tei, Tew, Te = zeros(T), zeros(T), zeros(T), zeros(T)
+NWw, NWi, NWc, NWk, NWb, NWg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+NLw, NLi, NLc, NLk, NLb, NLg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Tec, Tek, Tei, Tew, Te = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
 Tii, Tiw, Ti = zeros(T), zeros(T), zeros(T)
-Tew, Tei, Tef, Te = zeros(T), zeros(T), zeros(T), zeros(T)
-Tff, Tfb, Tf = zeros(T), zeros(T), zeros(T)
-Πi, Π, Πf, Πb = zeros(T), zeros(T), zeros(T), zeros(T)
-I, i = zeros(T), zeros(T)
-p, pe = zeros(T), zeros(T)
-u, Δu, ue = zeros(T), zeros(T), zeros(T)
-Δk, ΔK = zeros(T), zeros(T), zeros(T), zeros(T)
-ΔMw, ΔMi, ΔMf, ΔM = zeros(T), zeros(T), zeros(T), zeros(T)
-ΔLw, ΔLf, ΔL = zeros(T), zeros(T), zeros(T)
-Δei, Δeb, Δe, ΔEi, ΔEb, ΔE = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Tfc, Tfk, Tfb, Tf = zeros(T), zeros(T), zeros(T), zeros(T)
+Πci, Πc, Πcc, Πcb, Πki, Πk, Πkk, Πkb = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+Ic, Ik, If, Ig, ic, ik, ig, icD, ikD, igD = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+uc, uk, Δuc, Δuk, uce, uke = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+GS, rE = zeros(T), zeros(T)
+
+Δkc, Δkk, Δkg, Δk, ΔKc, ΔKk, ΔKg, ΔK = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+ΔMw, ΔMi, ΔMc, ΔMk, ΔM = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+ΔLw, ΔLc, ΔLk, ΔL = zeros(T), zeros(T), zeros(T), zeros(T)
+Δeci, Δecb, Δec, Δeki, Δekb, Δek, ΔEci, ΔEcb, ΔEc, ΔEki, ΔEkb, ΔEk = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
 ΔHw, ΔHb, ΔH = zeros(T), zeros(T), zeros(T)
-Δp, Δpe = zeros(T), zeros(T), zeros(T)
-Le, Ebe = zeros(T), zeros(T)
-We, Tiwe, Tewe = zeros(T), zeros(T), zeros(T)
-Πie, Πbe, Ee, Tiie, Teie = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-NWie, ΔNWi = zeros(T), zeros(T)
-ΔW, ΔTiw, ΔTew = zeros(T), zeros(T), zeros(T)
-ΔΠi, ΔΠb, ΔTii, ΔTei = zeros(T), zeros(T), zeros(T), zeros(T)
-ΔCi, ΔCw = zeros(T), zeros(T)
-EiT, EbT = zeros(T), zeros(T)
+Δp, Δpk, Δpec, Δpek = zeros(T), zeros(T), zeros(T), zeros(T)
+Δc, Δg, Δic, Δig = zeros(T), zeros(T), zeros(T), zeros(T)
+ΔTfc, ΔTfk, ΔTiw, ΔTew, ΔTii, ΔTei = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+ΔW, ΔCw, ΔCi = zeros(T), zeros(T), zeros(T)
+ΔNWi = zeros(T)
+
+EciT, EkiT, EcbT, EkbT = zeros(T), zeros(T), zeros(T), zeros(T)
+Tfce, Tfke, Tiwe, Tewe, Tiie, Teie = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+ce, ge, ice, ige = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
+We = zeros(T)
+Πcie, Πkie = zeros(T), zeros(T)
+NWie = zeros(T)
 
 #   初期値設定
-K[1] = 300
-Mw[1], Mi[1], Mf[1], M[1] = 400.0, 50.0, 150.0, 600.0
-Ei[1], E[1], Eb[1] = 50.0, 100.0, 50.0
-ei[1], e[1], eb[1] = 50.0, 100.0, 50.0
-Lw[1], Lf[1], L[1] = 200.0, 0.0, 200.0
+Kc[1], Kk[1], Kg[1] = 150, 150, 150
+Mw[1], Mi[1], Mc[1], Mk[1], M[1] = 400.0, 50.0, 75.0, 75.0, 600.0
+Eci[1], Ec[1], Ecb[1], Eki[1], Ek[1], Ekb[1] = 50.0, 100.0, 50.0, 50.0, 100.0, 50.0
+eci[1], ec[1], ecb[1], eki[1], ek[1], ekb[1] = 50.0, 100.0, 50.0, 50.0, 100.0, 50.0
+Lw[1], Lc[1], Lk[1], L[1] = 200.0, 0.0, 0.0, 200.0
 Hw[1], Hb[1], H[1] = 20.0, 580.0, 600.0
-G[1], gD[1] = G0, G0
-Wf[1], Wg[1], W[1], wg[1] = 1.0*G0, 0.5*G0, 1.5*G0, 0.5*G0
-p[1], pe[1] = 1.0, 1.0
-k[1] = K[1]/p[1]
+GD[1], gD[1], igD[1] = G0, G0, 0.5*G0
+Wc[1], Wk[1], Wg[1], W[1], wg[1] = 0.5*G0, 0.5*G0, 0.5*G0, 1.5*G0, 0.5*G0
+p[1], pk[1], pec[1], pek[1] = 1.0, 1.0, 1.0, 1.0
+kc[1], kk[1], kg[1] = Kc[1]/pk[1], Kk[1]/pk[1], Kg[1]/pk[1]
+K[1], k[1] = Kc[1] + Kk[1] + Kg[1], kc[1] + kk[1] + kg[1]
+ic[1], ik[1], ig[1] = 0.15*G0, 0.15*G0, 0.5*G0
+ice[1], ige[1] = ic[1], ig[1]
 CwD[1], CiD[1] = 1.0*G0, 0.1*G0
-Cw[1], Ci[1] = CwD[1]/max(1, (CwD[1] + CiD[1])/(p[1]*ζ1*k[1])), CiD[1]/max(1, (CwD[1] + CiD[1])/(p[1]*ζ1*k[1]))
-cw[1], ci[1] = Cw[1]/p[1], Ci[1]/p[1]
+Tfc[1], Tfk[1] = 5.0, 5.0
+Cw[1], Ci[1] = CwD[1]/max(1, (CwD[1] + CiD[1] + GD[1])/(p[1]*ζ1*kc[1])), CiD[1]/max(1, (CwD[1] + CiD[1] + GD[1])/(p[1]*ζ1*kc[1]))
+G[1] = GD[1]/max(1, (CwD[1] + CiD[1] + GD[1])/(p[1]*ζ1*kc[1]))
+cw[1], ci[1], g[1] = Cw[1]/p[1], Ci[1]/p[1], G[1]/p[1]
+Ic[1], Ik[1], If[1], Ig[1] = ic[1]*p[1], ik[1]*p[1], ic[1]*p[1] + ik[1]*p[1], ig[1]*p[1]
 C[1], c[1] = Cw[1] + Ci[1], cw[1] + ci[1]
-u[1] = min(1, (C[1] + Ci[1])/(p[1] * ζ1 * k[1]))
-ue[1] = u[1]
-Π[1] = C[1] + I[1] + G[1] - Wf[1] - Tef[1] - Tff[1] - r*Lf[1]
-Πi[1] = max(0, θ1*(Π[1]-I[1])*Ei[1]/E[1] + θ2*(Mf[1]-Lf[1]))
-Πb[1] = max(0, θ1*(Π[1]-I[1])*Eb[1]/E[1] + θ2*(Mf[1]-Lf[1]))
-Πf[1] = Π[1] - Πi[1] - Πb[1]
-Tiw[1], Tii[1], Tei[1], Tew[1] = τ1*W[1], τ1*Πi[1], γ2*(Mi[1] + Ei[1]), γ2*(Mw[1] + Hw[1])
-Le[1] = L[1]
-Πie[1], Πbe[1], Ee[1] = Πi[1], Πb[1], E[1]
-We[1], Tiwe[1], Tewe[1] = W[1], Tiw[1], Tew[1]
-Tiie[1], Teie[1] = Tii[1], Tei[1]
-EiT[1], EbT[1] = Ei[1], Eb[1]
+
+uc[1], uk[1] = min(1, (C[1] + G[1])/(p[1] * ζ1 * kc[1])), min(1, (Ic[1] + Ig[1])/(pk[1] * ζ1 * kk[1]))
+uce[1], uke[1] = uc[1], uk[1]
+Πc[1] = C[1] + G[1] - Wc[1] - Tec[1] - Tfc[1] - r*Lc[1]
+Πci[1] = max(0, θ1*(Πc[1]-Ic[1])*Eci[1]/Ec[1] + θ2*(Mc[1]-Lc[1]))
+Πcb[1] = max(0, θ1*(Πc[1]-Ic[1])*Ecb[1]/Ec[1] + θ2*(Mc[1]-Lc[1]))
+Πcc[1] = Πc[1] - Πci[1] - Πcb[1]
+Πk[1] = If[1] + Ig[1] - Wk[1] - Tek[1] - Tfk[1] - r*Lk[1]
+Πki[1] = max(0, θ1*(Πk[1]-Ik[1])*Eki[1]/Ek[1] + θ2*(Mk[1]-Lk[1]))
+Πkb[1] = max(0, θ1*(Πk[1]-Ik[1])*Ekb[1]/Ek[1] + θ2*(Mk[1]-Lk[1]))
+Πkk[1] = Πk[1] - Πki[1] - Πkb[1]
+Tiw[1], Tii[1], Tei[1], Tew[1] = τ1*W[1], τ1*(Πci[1] + Πki[1]), γ2*(Mi[1] + Eci[1] + Eki[1]), γ2*(Mw[1] + Hw[1])
+Tfce[1], Tfke[1], Tiwe[1], Tewe[1], Tiie[1], Teie[1] = Tfc[1], Tfk[1], Tiw[1], Tew[1], Tii[1], Tei[1]
+We[1] = W[1]
+Πcie[1], Πkie[1] = Πci[1], Πki[1]
+rE[1] = (Πci[1] + Πcb[1] + Πki[1] + Πkb[1])/(Ec[1] + Ek[1])
 
 #   会計的整合性を満たすように、残りの変数の値を決める
 #   初期値の計算においては、使わない会計恒等式も多い
-NLw[1] = -Cw[1] + W[1] - Tiw[1] - Tew[1] - r*L[1]
-ΔMw[1] = NLw[1] # ΔLw[1] = ΔHw[1] = 0ということにする
-NLi[1] = Πi[1] - Ci[1] - Tii[1] - Tei[1]  # i[1] = 0を仮定
-ΔMi[1] = NLi[1]  # Δei[1] = 0ということにする
-NLf[1] = Πf[1]  # i[1] = 0を仮定
-ΔMf[1] = NLf[1] # ΔLf[1] = 0を仮定
+NLw[1] = -Cw[1] + W[1] - Tiw[1] - Tew[1] - r*Lw[1]
+ΔMw[1] = NLw[1] + ΔLw[1] - ΔHw[1]
+NLi[1] = Πci[1] + Πki[1] - Ci[1] - Tii[1] - Tei[1]
+ΔMi[1] = NLi[1] - pec[1]*Δeci[1] - pek[1]*Δeki[1]
+NLc[1] = Πcc[1] - Ic[1]
+NLk[1] = Πkk[1] - Ik[1]
+ΔMc[1] = NLc[1] + ΔLc[1] + pec[1]*Δec[1]
+ΔMk[1] = NLk[1] + ΔLk[1] + pek[1]*Δek[1]
 Ti[1] = Tiw[1] + Tii[1]
-Te[1] = Tew[1] + Tei[1] + Tef[1]
-ΔM[1] = ΔMw[1] + ΔMi[1] + ΔMf[1]
-ΔL[1] = ΔLw[1] + ΔLf[1]
-NLb[1] = -Tfb[1] + Πb[1] + r*L[1]
-ΔHb[1] = NLb[1] + ΔM[1] - ΔL[1] - pe[1]*Δeb[1]
+Te[1] = Tew[1] + Tei[1] + Tec[1] + Tek[1]
+Tf[1] = Tfc[1] + Tfk[1] + Tfb[1]
+ΔM[1] = ΔMw[1] + ΔMi[1] + ΔMc[1] + ΔMk[1]
+ΔL[1] = ΔLw[1] + ΔLc[1] + ΔLk[1]
+NLb[1] = -Wb[1] - Tfb[1] + Πcb[1] + Πkb[1] + r*L[1]
+ΔHb[1] = NLb[1] + ΔM[1] - ΔL[1] - pec[1]*Δecb[1] - pek[1]*Δekb[1]
 ΔH[1] = ΔHw[1] + ΔHb[1]
-NLg[1] = -G[1] - Wg[1] + Ti[1] + Te[1] + Tf[1]
+GS[1] = -G[1] - Wg[1] + Ti[1] + Te[1] + Tf[1]
+NLg[1] = -Ig[1] + GS[1]
+K[1] = Kc[1] + Kk[1] + Kg[1]
 
 NWw[1] = Mw[1] - Lw[1] + Hw[1]
-NWi[1] = Mi[1] + Ei[1]
-NWf[1] = K[1] + Mf[1] - E[1] - Lf[1]
-NWb[1] = -M[1] + Eb[1] + L[1] + Hb[1]
-NWg[1] = -H[1]
+NWi[1] = Mi[1] + Eci[1] + Eki[1]
+NWc[1] = Kc[1] + Mc[1] - Ec[1] - Lc[1]
+NWk[1] = Kk[1] + Mk[1] - Ek[1] - Lk[1]
+NWb[1] = -M[1] + Ecb[1] + Ekb[1] + L[1] + Hb[1]
+NWg[1] = Kg[1] - H[1]
+
+NWie[1] = NWi[1]
 
 #   会計的整合性の確認
 println("------initial------")
-println("-G-Wg+Ti+Te+Tf+ΔH=", -G[1]-Wg[1]+Ti[1]+Te[1]+Tf[1]+ΔH[1])
-println("NLw+NLi+NLf+NLb+NLg=", NLw[1]+NLi[1]+NLf[1]+NLb[1]+NLg[1])
-println("-M+Mw+Mi+Mf=", -M[1]+Mw[1]+Mi[1]+Mf[1])
-println("-E+Ei+Eb=", -E[1]+Ei[1]+Eb[1])
-println("-L+Lw+Lf=", -L[1]+Lw[1]+Lf[1])
-println("-H+Hw+Hf=", -H[1]+Hw[1]+Hb[1])
-println("NWw+NWi+NWf+NWb+NWg-K=", NWw[1]+NWi[1]+NWf[1]+NWb[1]+NWg[1]-K[1])
+println("-Ig+GS+ΔH=", -Ig[1]+GS[1]+ΔH[1])
+println("NLw+NLi+NLc+NLk+NLb+NLg=", NLw[1]+NLi[1]+NLc[1]+NLk[1]+NLb[1]+NLg[1])
+println("-M+Mw+Mi+Mc+Mk=", -M[1]+Mw[1]+Mi[1]+Mc[1]+Mk[1])
+println("-Ec+Eci+Ecb=", -Ec[1]+Eci[1]+Ecb[1])
+println("-Ek+Eki+Ekb=", -Ek[1]+Eki[1]+Ekb[1])
+println("-L+Lw+Lc+Lk=", -L[1]+Lw[1]+Lc[1]+Lk[1])
+println("-H+Hw+Hb=", -H[1]+Hw[1]+Hb[1])
+println("NWw+NWi+NWc+NWk+NWb+NWg-K=", NWw[1]+NWi[1]+NWc[1]+NWk[1]+NWb[1]+NWg[1]-K[1])
 
 function btw(A, B, C)
     if A > C
@@ -127,242 +154,344 @@ end
 function run()
     #   シミュレーション実行
     for t = 2:T
-        ue[t] = ((1 - λe)*ue[t-1] + λe*u[t-1])*u[t-1]/(u[t-1]-Δu[t-1])
-        p[t] = p[t-1]*exp(μ3*(min(1, max(ue[t], (CwD[t-1] + CiD[t-1] + GD[t-1])/(p[t-1]*ζ2[t-1])) - uT)))
-        Δp[t] = p[t] - p[t-1]
-        Wf[t] = (1.0 - ϵ1)*Wf[t-1] + ϵ1*max(0.0, (Wf[t-1] + Π[t-1] - I[t-1])*ϵ3[t])
-        Wb[t] = (1.0 - ϵ1)*Wb[t-1] + ϵ1*max(0.0, ϵ2*(Πb[t-1] + r*L[t-1]) + ϵ4*(Hb[t-1] - M[t-1]))
-        wg[t] = wg[t-1]*(1.0 + δ1[t] - δ2*(p[t]-p[t-1])/p[t-1])
-        Wg[t] = p[t]*wg[t-1]
-        W[t] = Wf[t] + Wg[t] + Wb[t]
-        ΔW[t] = W[t] - W[t-1]
-        gD[t] = gD[t-1]*(1.0 + δ1[t] - δ2*(p[t]-p[t-1])/p[t-1])
-        GD[t] = p[t]*gD[t]
+        if (Tfc[t-1] == 0.0) | (Tfc[t-1]-ΔTfc[t-1] == 0.0)
+            Tfce[t] = 0.0
+        else
+            Tfce[t] = ((1 - λe)*Tfce[t-1] + λe*Tfc[t-1])*Tfc[t-1]/(Tfc[t-1]-ΔTfc[t-1])
+        end
+        ce[t] = ((1 - λe)*ce[t-1] + λe*c[t-1])*c[t-1]/(c[t-1]-Δc[t-1])
+        ge[t] = ((1 - λe)*ge[t-1] + λe*g[t-1])*g[t-1]/(g[t-1]-Δg[t-1])
+        if (Tfk[t-1] == 0.0) | (Tfk[t-1]-ΔTfk[t-1] == 0.0)
+            Tfke[t] = 0.0
+        else
+            Tfke[t] = ((1 - λe)*Tfke[t-1] + λe*Tfk[t-1])*Tfk[t-1]/(Tfk[t-1]-ΔTfk[t-1])
+        end
+        if (ic[t-1] == 0.0) | (ic[t-1]-Δic[t-1] == 0.0)
+            ice[t] = 0.0
+        else
+            ice[t] = ((1 - λe)*ice[t-1] + λe*ic[t-1])*ic[t-1]/(ic[t-1]-Δic[t-1])
+        end
+        ige[t] = ((1 - λe)*ige[t-1] + λe*ig[t-1])*ig[t-1]/(ig[t-1]-Δig[t-1])
         We[t] = ((1 - λe)*We[t-1] + λe*W[t-1])*W[t-1]/(W[t-1]-ΔW[t-1])
         Tiwe[t] = ((1 - λe)*Tiwe[t-1] + λe*Tiw[t-1])*Tiw[t-1]/(Tiw[t-1]-ΔTiw[t-1])
         Tewe[t] = ((1 - λe)*Tewe[t-1] + λe*Tew[t-1])*Tew[t-1]/(Tew[t-1]-ΔTew[t-1])
-        CwD[t] = (1 - α5)*CwD[t-1] + α5*max(0, α1*(We[t]-Tiwe[t]-Tewe[t]-r*Lw[t-1]) + α2*(Mw[t-1] + Hw[t-1] - Lw[t-1]))*Cw[t-1]/(Cw[t-1]-ΔCw[t-1])
-        Πie[t] = ((1 - λe)*Πie[t-1] + λe*Πi[t-1])*Πi[t-1]/(Πi[t-1]-ΔΠi[t-1])
-        Tiie[t] = ((1 - λe)*Tiie[t-1] + λe*Tii[t-1])*Tii[t-1]/(Tii[t-1]-ΔTii[t-1])
+        Πcie[t] = ((1 - λe)*Πcie[t-1] + λe*Πci[t-1])
+        Πkie[t] = ((1 - λe)*Πkie[t-1] + λe*Πki[t-1])
+        if (Tii[t-1] == 0.0) | (Tii[t-1]-ΔTii[t-1] == 0.0)
+            Tiie[t] = 0.0
+        else
+            Tiie[t] = ((1 - λe)*Tiie[t-1] + λe*Tii[t-1])*Tii[t-1]/(Tii[t-1]-ΔTii[t-1])
+        end
         Teie[t] = ((1 - λe)*Teie[t-1] + λe*Tei[t-1])*Tei[t-1]/(Tei[t-1]-ΔTei[t-1])
-        CiD[t] = (1 - α5)*CiD[t-1] + α5*max(0, α3*(Πie[t]-Tiie[t]-Teie[t]) + (α4 + α6*Ei[t-1]/E[t-1])*Mi[t-1])*Ci[t-1]/(Ci[t-1]-ΔCi[t-1])
-        Cw[t] = CwD[t]/max(1, (CwD[t] + CiD[t] + GD[t])/(p[t]*min(ζ1*k[t-1], ζ2[t])))
-        ΔCw[t] = Cw[t] - Cw[t-1]
-        Ci[t] = CiD[t]/max(1, (CwD[t] + CiD[t] + GD[t])/(p[t]*min(ζ1*k[t-1], ζ2[t])))
-        ΔCi[t] = Ci[t] - Ci[t-1]
-        C[t] = Cw[t] + Ci[t]
-        c[t] = C[t]/p[t]
-        G[t] = GD[t]/max(1, (CwD[t] + CiD[t] + GD[t])/(p[t]*min(ζ1*k[t-1], ζ2[t])))
-        g[t] = G[t]/p[t]
-        u[t] = (c[t] + g[t])/(ζ1*k[t-1])
-        Δu[t] = u[t] - u[t-1]
-        Tef[t] = γ1*K[t-1]
-        Tei[t] = γ2*(Mi[t-1] + Ei[t-1])
+        NWie[t] = ((1 - λe)*NWie[t-1] + λe*NWi[t-1])
+
+        Wc[t] = (1 - ϵ1)*Wc[t-1] + ϵ1*Wc[t-1]*exp(ϵ2*(uc[t-1] - uT))
+        Wk[t] = (1 - ϵ1)*Wk[t-1] + ϵ1*Wk[t-1]*exp(ϵ2*(uk[t-1] - uT))
+        Wb[t] = (1 - ϵ1)*Wb[t-1] + ϵ1*max(0, ϵ3*(Πcb[t-1] + Πkb[t-1] + r*L[t-1]) + ϵ4*(Hb[t-1] - M[t-1]))
+        Tec[t] = γ1*Kc[t-1]
+        Tek[t] = γ1*Kk[t-1]
+        Tei[t] = γ2*(Mi[t-1] + Eci[t-1] + Eki[t-1])
         ΔTei[t] = Tei[t] - Tei[t-1]
         Tew[t] = γ2*(Mw[t-1] + Hw[t-1])
-        Te[t] = Tef[t] + Tei[t] + Tew[t]
-        i[t] = btw(0, (u[t-1] - uT)*k[t-1] + β1*k[t-1], max(0, β2*(Mf[t-1] - Lf[t-1])/p[t]))
-        I[t] = p[t]*i[t]
-        k[t] = (1 - β1)k[t-1] + i[t]
-        Δk[t] = k[t] - k[t-1]
-        K[t] = p[t-1]*k[t-1] + Δp[t]*k[t-1] + p[t]*Δk[t]
-        ΔK[t] = K[t] - K[t-1]
-        Tii[t] = τ1*Πi[t-1]
+        ΔTew[t] = Tew[t] - Tew[t-1]
+        Te[t] = Tew[t] + Tei[t] + Tec[t] + Tek[t] 
+        p[t] = (1 + muc)*(pk[t]*ice[t] + Wc[t] + Tec[t] + Tfce[t] + r*Lc[t-1])/(ce[t] + ge[t])
+        pk[t] = (1 + muk)*(Wk[t] + Tek[t] + Tfke[t] + r*Lk[t-1])/(ice[t] + ige[t])
+        Δpk[t] = pk[t] - pk[t-1]
+        wg[t] = wg[t-1]*(1 + δ1[t] - δ2*(p[t]-p[t-1])/p[t-1])
+        Wg[t] = p[t]*wg[t]
+        W[t] = Wc[t] + Wk[t] + Wb[t] + Wg[t]
+        ΔW[t] = W[t] - W[t-1]
+        gD[t] = gD[t-1]*(1 + δ1[t] - δ2*(p[t]-p[t-1])/p[t-1])
+        GD[t] = p[t]*gD[t]
+        CwD[t] = ((1 - α6)*CwD[t-1] + α6*max(0, α1*(We[t] - Tiwe[t] - Tewe[t] - r*Lw[t-1]) + α2*(Mw[t-1] + Hw[t-1] - Lw[t-1])))*Cw[t-1]/(Cw[t-1]-ΔCw[t-1])
+        CiD[t] = ((1 - α6)*CiD[t-1] + α6*max(0, α3*(Πcie[t] + Πkie[t] - Tiie[t] - Teie[t]) + (α4 + α5*Mi[t-1]*(Eci[t-1] + Eki[t-1])/(Ec[t-1] + Ek[t-1]))))*Ci[t-1]/(Ci[t-1] - ΔCi[t-1])
+        Cw[t] = CwD[t]/max(1, (CwD[t] + CiD[t] + GD[t])/(p[t]*min(ζ1*kc[t-1], ζ2[t])))
+        Ci[t] = CiD[t]/max(1, (CwD[t] + CiD[t] + GD[t])/(p[t]*min(ζ1*kc[t-1], ζ2[t])))
+        c[t], C[t] = (Cw[t] + Ci[t])/p[t], Cw[t] + Ci[t]
+        Δc[t] = c[t] - c[t-1]
+        G[t] = GD[t]/max(1, (CwD[t] + CiD[t] + GD[t])/(p[t]*min(ζ1*kc[t-1], ζ2[t])))
+        cw[t], ci[t], g[t] = Cw[t]/p[t], Ci[t]/p[t], G[t]/p[t]
+        Δg[t] = g[t] - g[t-1]
+        uc[t] = (c[t] + g[t])/(ζ1*kc[t-1])
+        icD[t] = btw(0, (uc[t-1] - uT)*kc[t-1] + β1*kc[t-1], max(0, β2*(Mc[t-1] - Lc[t-1])/pk[t]))
+        ikD[t] = btw(0, (uk[t-1] - uT)*kk[t-1] + β1*kk[t-1], max(0, β2*(Mk[t-1] - Lk[t-1])/pk[t]))
+        igD[t] = igD[t-1]*(1 + δ1[t] - δ2*(pk[t]-pk[t-1])/pk[t-1])
+        ic[t] = icD[t]/max(1, (icD[t] + ikD[t] + igD[t])/(min(ζ5*kk[t-1], ζ3[t])))
+        ik[t] = ikD[t]/max(1, (icD[t] + ikD[t] + igD[t])/(min(ζ5*kk[t-1], ζ3[t])))
+        ig[t] = igD[t]/max(1, (icD[t] + ikD[t] + igD[t])/(min(ζ5*kk[t-1], ζ3[t])))
+        Δic[t], Δig[t] = ic[t] - ic[t-1], ig[t] - ig[t-1]
+        Ic[t], Ik[t], Ig[t], If[t] = pk[t]*ic[t], pk[t]*ik[t], pk[t]*ig[t], pk[t]*ic[t] + pk[t]*ik[t]
+        uk[t] = (If[t]/pk[t] + ig[t])/(ζ5*kk[t-1])
+        kc[t], kk[t], kg[t] = (1 - β1)*kc[t-1] + ic[t], (1 - β1)*kk[t-1] + ik[t], (1 - β1)*kg[t-1] + ig[t]
+        Kc[t], Kk[t], Kg[t] = pk[t]*kc[t], pk[t]*kk[t], pk[t]*kg[t]
+        Δkc[t], Δkk[t], Δkg[t] = kc[t] - kc[t-1], kk[t] - kk[t-1], kg[t] - kg[t-1]
+        ΔKc[t], ΔKk[t], ΔKg[t] = Kc[t] - Kc[t-1], Kk[t] - Kk[t-1], Kg[t] - Kg[t-1]
+        ΔK[t], K[t], Δk[t], k[t] = ΔKc[t] + ΔKk[t] + ΔKg[t], Kc[t] + Kk[t] + Kg[t], Δkc[t] + Δkk[t] + Δkg[t], kc[t] + kk[t] + kg[t]
+        Δec[t] = max(0, κ1*(pk[t]*icD[t] - β1*Kc[t-1])/pec[t-1]) - max(0, κ2*(Mc[t-1] - Lc[t-1])/pec[t-1])# - κ3*(c[t]+g[t]))
+        ec[t] = ec[t-1] + Δec[t]
+        Δek[t] = max(0, κ1*(pk[t]*ikD[t] - β1*Kk[t-1])/pek[t-1]) - max(0, κ2*(Mk[t-1] - Lk[t-1])/pek[t-1])# - κ3*(ic[t] + ig[t]))
+        ek[t] = ek[t-1] + Δek[t]
+        Tii[t] = τ1*(Πci[t-1] + Πki[t-1])
         ΔTii[t] = Tii[t] - Tii[t-1]
         Tiw[t] = τ1*W[t-1]
         ΔTiw[t] = Tiw[t] - Tiw[t-1]
         Ti[t] = Tii[t] + Tiw[t]
-        Tff[t] = τ2*(C[t] + I[t] + G[t] - Wf[t] - Tef[t] - r*Lf[t-1])
-        Π[t] = C[t] + I[t] + G[t] - Wf[t] - Tef[t] - Tff[t] - r*Lf[t-1]
-        Πi[t] = max(0, (θ1*(Π[t] - I[t]) + θ2*(Mf[t-1] - Lf[t-1]))*Ei[t-1]/E[t-1])
-        ΔΠi[t] = Πi[t] - Πi[t-1]
-        Πb[t] = max(0, (θ1*(Π[t] - I[t]) + θ2*(Mf[t-1] - Lf[t-1]))*Eb[t-1]/E[t-1])
-        ΔΠb[t] = Πb[t] - Πb[t-1]
-        Πf[t] = Π[t] - Πi[t] - Πb[t]
-        Tfb[t] = max(0, τ2*(Πb[t] + r*L[t-1] - Wb[t] + Δpe[t]*eb[t-1]))
-        Tf[t] = Tff[t] + Tfb[t]
+        Tfc[t] = τ2*(C[t] + G[t] - Wc[t] - Tec[t] - r*Lc[t-1])
+        ΔTfc[t] = Tfc[t] - Tfc[t-1]
+        Tfk[t] = τ2*(If[t] + Ig[t] - Wk[t] - Tek[t] - r*Lk[t-1])
+        ΔTfk[t] = Tfk[t] - Tfk[t-1]
+        Πc[t] = C[t] + G[t] - Wc[t] -Tec[t] - Tfc[t] - r*Lc[t-1]
+        Πci[t] = max(0, (θ1*(Πc[t] - Ic[t]) + θ2*(Mc[t-1] - Lc[t-1]))*Eci[t-1]/Ec[t-1])
+        Πcb[t] = max(0, (θ1*(Πc[t] - Ic[t]) + θ2*(Mc[t-1] - Lc[t-1]))*Ecb[t-1]/Ec[t-1])
+        Πcc[t] = Πc[t] - Πci[t] - Πcb[t]
+        Πk[t] = If[t] + Ig[t] - Wk[t] - Tek[t] - Tfk[t] - r*Lk[t-1]
+        Πki[t] = max(0, (θ1*(Πk[t] - Ik[t]) + θ2*(Mk[t-1] - Lk[t-1]))*Eki[t-1]/Ek[t-1])
+        Πkb[t] = max(0, (θ1*(Πk[t] - Ik[t]) + θ2*(Mk[t-1] - Lk[t-1]))*Ekb[t-1]/Ek[t-1])
+        Πkk[t] = Πk[t] - Πki[t] - Πkb[t]
+        Tfb[t] = max(0, τ2*(Πcb[t] + Πkb[t] + r*L[t-1] - Wb[t] + Δpec[t]*ecb[t-1] + Δpek[t]*ekb[t-1]))
+        Tf[t] = Tfc[t] + Tfk[t] + Tfb[t]
+        GS[t] = -G[t] - Wg[t] + Ti[t] + Te[t] + Tf[t]
+
         NLw[t] = -Cw[t] + W[t] - Tiw[t] - Tew[t] - r*Lw[t-1]
-        NLi[t] = -Ci[t] - Tii[t] - Tei[t] + Πi[t]
-        NLf[t] = -I[t] + Πf[t]
-        NLb[t] = -Wb[t] - Tfb[t] + Πb[t] + r*L[t-1]
-        NLg[t] = -G[t] - Wg[t] + Ti[t] + Te[t] + Tf[t]
+        NLi[t] = -Ci[t] - Tii[t] - Tei[t] + Πci[t] + Πki[t]
+        NLc[t] = Πcc[t] - Ic[t]
+        NLk[t] = Πkk[t] - Ik[t]
+        NLb[t] = -Wb[t] - Tfb[t] + Πcb[t] + Πkb[t] + r*L[t-1]
+        NLg[t] = -Ig[t] + GS[t]
+
         Hw[t] = ι1*Cw[t]
         ΔHw[t] = Hw[t] - Hw[t-1]
         Lw[t] = ι2*W[t]
         ΔLw[t] = Lw[t] - Lw[t-1]
-        ΔMw[t] = NLw[t] - ΔHw[t] + ΔLw[t]
+        ΔMw[t] = NLw[t] + ΔLw[t] - ΔHw[t]
         Mw[t] = Mw[t-1] + ΔMw[t]
-        if Πi[t-1]-ΔΠi[t-1] == 0.0
-            Πie[t] = 0.0
-        else
-            Πie[t] = ((1 - λe)*Πie[t-1] + λe*Πi[t-1])*Πi[t-1]/(Πi[t-1]-ΔΠi[t-1])
-        end
-        if Πb[t-1]-ΔΠb[t-1] == 0.0
-            Πbe[t] = 0.0
-        else
-            Πbe[t] = ((1 - λe)*Πbe[t-1] + λe*Πb[t-1])*Πb[t-1]/(Πb[t-1]-ΔΠb[t-1])
-        end
-        Ee[t] = ((1 - λe)*Ee[t-1] + λe*E[t-1])*E[t-1]/(E[t-1]-ΔE[t-1])
-        Le[t] = ((1 - λe)*Le[t-1] + λe*L[t-1])*L[t-1]/(L[t-1]-ΔL[t-1])
-        NWie[t] = ((1 - λe)*NWie[t-1] + λe*NWi[t-1])*NWi[t-1]/(NWi[t-1]-ΔNWi[t-1])
-        ΔNWi[t] = NWi[t] - NWi[t-1]
-        EiT[t], EbT[t] = ι3*NWie[t], (1.0 - ι7)*Eb[t-1] + ι7*((Πie[t] + Πbe[t])/Ee[t]*Le[t]/r)
-        #TODO   もうちょっとどうにかならんか？ei,eb,peをめぐる行動方程式
-        pe[t] = (EiT[t] + EbT[t])/e[t]
-        Δpe[t] = pe[t] - pe[t-1]
-        E[t] = pe[t]*e[t]
-        ΔE[t] = E[t] - E[t-1]
+        EciT[t] = κ4*NWie[t]*(C[t] + G[t])/(C[t] + G[t] + Ic[t] + Ig[t])
+        EkiT[t] = κ4*NWie[t]*(Ic[t] + Ig[t])/(C[t] + G[t] + Ic[t] + Ig[t])
+        EcbT[t] = ((1 - κ5)*Ecb[t-1] + κ5*rE[t-1]*(L[t] + Ecb[t-1] + Ekb[t-1])/(r + rE[t-1]))*Ec[t-1]/(Ec[t-1] + Ek[t-1])
+        EkbT[t] = ((1 - κ5)*Ekb[t-1] + κ5*rE[t-1]*(L[t] + Ecb[t-1] + Ekb[t-1])/(r + rE[t-1]))*Ek[t-1]/(Ec[t-1] + Ek[t-1])
+        pec[t] = (EciT[t] + EcbT[t])/ec[t]
+        pek[t] = (EkiT[t] + EkbT[t])/ek[t]
+        Δpec[t], Δpek[t] = pec[t] - pec[t-1], pek[t] - pek[t-1]
+        Ec[t], Ek[t] = pec[t]*ec[t], pek[t]*ek[t]
+        rE[t] = (Πci[t] + Πcb[t] + Πki[t] + Πkb[t])/(Ec[t] + Ek[t])
+        Eci[t] = min(κ4*NWie[t]*(C[t] + G[t])/(C[t] + G[t] + Ic[t] + Ig[t]), Ec[t])
+        Eki[t] = min(κ4*NWie[t]*(Ic[t] + Ig[t])/(C[t] + G[t] + Ic[t] + Ig[t]), Ek[t])
+        Ecb[t], Ekb[t] = Ec[t] - Eci[t], Ek[t] - Eki[t]
+        eci[t], ecb[t], ec[t], eki[t], ekb[t], ek[t] = Eci[t]/pec[t], Ecb[t]/pec[t], Ec[t]/pec[t], Eki[t]/pek[t], Ekb[t]/pek[t], Ek[t]/pek[t]
+        
         NWw[t] = NWw[t-1] + NLw[t]
-        NWi[t] = NWi[t-1] + NLi[t] + Δpe[t]*ei[t-1]
-        NWf[t] = NWf[t-1] + NLf[t] - ΔE[t] + ΔK[t]
-        NWb[t] = NWb[t-1] + NLb[t] + Δpe[t]*eb[t-1]
-        NWg[t] = NWg[t-1] + NLg[t]
-        Ei[t] = min(ι3*NWi[t], E[t])
-        ei[t] = Ei[t]/pe[t]
-        ΔEi[t] = Ei[t] - Ei[t-1]
-        Δei[t] = ei[t] - ei[t-1]
-        eb[t] = e[t] - ei[t]
-        Δeb[t] = eb[t] - eb[t-1]
-        Eb[t] = pe[t]*eb[t]
-        ΔEb[t] = Eb[t] - Eb[t-1]
-        ΔMi[t] = NLi[t] - pe[t]*Δei[t]
-        Mi[t] = NWi[t] - Ei[t]
-        LfD[t] = (1.0 - ι4)*LfD[t-1] + ι4 * max(0.0, I[t] + Wf[t] + Tef[t] + Tff[t] + r*Lf[t-1] - Mf[t-1] - NLf[t])
-        Lf[t] = btw(0.0, LfD[t], max(0.0, ι5*NLf[t]))
-        ΔLf[t] = Lf[t] - Lf[t-1]
-        ΔMf[t] = ΔLf[t] + NLf[t]
-        Mf[t] = Mf[t-1] + ΔMf[t]
-        M[t] = Mw[t] + Mi[t] + Mf[t]
-        ΔM[t] = ΔMw[t] + ΔMi[t] + ΔMf[t]
-        L[t] = Lw[t] + Lf[t]
-        ΔL[t] = ΔLw[t] + ΔLf[t]
-        ΔHb[t] = NLb[t] + ΔM[t] - ΔL[t] - pe[t]*Δeb[t]
-        Hb[t] = Hb[t-1] + ΔHb[t]
+        NWi[t] = NWi[t-1] + NLi[t] + Δpec[t]*eci[t-1] + Δpek[t]*eki[t-1]
+        NWc[t] = NWc[t-1] + NLc[t] - Δpec[t]*ec[t-1] + ΔKc[t]
+        NWk[t] = NWk[t-1] + NLk[t] - Δpek[t]*ek[t-1] + ΔKk[t]
+        NWb[t] = NWb[t-1] + NLb[t] + Δpec[t]*ecb[t-1] + Δpek[t]*ekb[t-1]
+        NWg[t] = NWg[t-1] + NLg[t] + ΔKg[t]
+
+        Δeci[t], Δecb[t], Δeki[t], Δekb[t] = eci[t] - eci[t-1], ecb[t] - ecb[t-1], eki[t] - eki[t-1], ekb[t] - ekb[t-1]
+        ΔEci[t], ΔEcb[t], ΔEc[t], ΔEki[t], ΔEkb[t], ΔEk[t] = Eci[t] - Eci[t-1], Ecb[t] - Ecb[t-1], Ec[t] - Ec[t-1], Eki[t] - Eki[t-1], Ekb[t] - Ekb[t-1], Ek[t] - Ek[t-1]
+        Mi[t] = NWi[t] - Eci[t] - Eki[t]
+        ΔMi[t] = Mi[t] - Mi[t-1]
+        LcD[t] = (1 - ι4)*LcD[t-1] + ι4*max(0, ι3*(Ic[t] + Wc[t] + Tec[t] + Tfc[t] + r*Lc[t-1]) - Mc[t-1])
+        Lc[t] = btw(0, LcD[t], max(0, ι5*NLc[t]))
+        ΔLc[t] = Lc[t] - Lc[t-1]
+        ΔMc[t] = NLc[t] + ΔLc[t] + pec[t]*Δec[t]
+        Mc[t] = Mc[t-1] + ΔMc[t]
+        LkD[t] = (1 - ι4)*LkD[t-1] + ι4*max(0, ι3*(Wk[t] + Tek[t] + Tfk[t] + r*Lk[t-1]) - Mc[t-1])
+        Lk[t] = btw(0, LkD[t], max(0, ι5*NLk[t]))
+        ΔLk[t] = Lk[t] - Lk[t-1]
+        ΔMk[t] = NLk[t] + ΔLk[t] + pek[t]*Δek[t]
+        Mk[t] = Mk[t-1] + ΔMk[t]
+        M[t] = Mw[t] + Mi[t] + Mc[t] + Mk[t]
+        ΔM[t] = ΔMw[t] + ΔMi[t] + ΔMc[t] + ΔMk[t]
+        ΔL[t] = ΔLw[t] + ΔLc[t] + ΔLk[t]
+        L[t] = Lw[t] + Lc[t] + Lk[t]
+        ΔHb[t] = NLb[t] + ΔM[t] - ΔL[t] - pec[t]*Δecb[t] - pek[t]*Δekb[t]
+        Hb[t] = NWb[t] + M[t] - Ecb[t] - Ekb[t] - L[t]
+        H[t] = Hw[t] + Hb[t]
         ΔH[t] = ΔHw[t] + ΔHb[t]
-        H[t] = H[t-1] + ΔH[t]
+
     end
 
     #   会計的整合性の確認
     println("--------final--------")
-    println("-G-Wg+Ti+Te+Tf+ΔH=",-G[end]-Wg[end]+Ti[end]+Te[end]+Tf[end]+ΔH[end])
-    println("NLw+NLi+NLf+NLb+NLg=",NLw[end]+NLi[end]+NLf[end]+NLb[end]+NLg[end])
-    println("Δei+Δeb-Δe=",Δei[end]+Δeb[end]-Δe[end])
+    println("-Ci-Tii-Tei+Πci+Πki-ΔMi-pecΔeci-pekΔeki=",-Ci[end]-Tii[end]-Tei[end]+Πci[end]+Πki[end]-ΔMi[end]-pec[end]*Δeci[end]-pek[end]*Δeki[end])
+    println("-Ig+GS+ΔH=",-Ig[end]+GS[end]+ΔH[end])
+    println("NLw+NLi+NLc+NLk+NLb+NLg=",NLw[end]+NLi[end]+NLc[end]+NLk[end]+NLb[end]+NLg[end])
+    println("Δeci+Δecb-Δec=",Δeci[end]+Δecb[end]-Δec[end])
+    println("Δeki+Δekb-Δek=",Δeki[end]+Δekb[end]-Δek[end])
+    println("K-K_{-1}-ΔK=",K[end]-K[end-1]-ΔK[end])
+    println("ΔKc-Δpk*k_{c-1}-pk*Δkc=",ΔKc[end]-Δpk[end]*kc[end-1]-pk[end]*Δkc[end])
+    println("ΔKk-Δpk*k_{k-1}-pk*Δkk=",ΔKk[end]-Δpk[end]*kk[end-1]-pk[end]*Δkk[end])
+    println("ΔKg-Δpk*k_{g-1}-pk*Δkg=",ΔKg[end]-Δpk[end]*kg[end-1]-pk[end]*Δkg[end])
+    println("ΔK-Δpk*k_{-1}-pk*Δk=",ΔK[end]-Δpk[end]*k[end-1]-pk[end]*Δk[end])
+    println("M-M_{-1}-ΔM=",M[end]-M[end-1]-ΔM[end])    
     println("L-L_{-1}-ΔL=",L[end]-L[end-1]-ΔL[end])
-    println("E-Ei-Eb=",E[end]-Ei[end]-Eb[end])
-    println("NWw+NWi+NWf+NWb+NWg-K=",NWw[end]+NWi[end]+NWf[end]+NWb[end]+NWg[end]-K[end])
+    println("ΔEci-Δpec*e_{ci-1}-pec*Δeci=",ΔEci[end]-Δpec[end]*eci[end-1]-pec[end]*Δeci[end])
+    println("ΔEki-Δpek*e_{ki-1}-pek*Δeki=",ΔEki[end]-Δpek[end]*eki[end-1]-pek[end]*Δeki[end])
+    println("ΔEcb-Δpec*e_{cb-1}-pec*Δecb=",ΔEcb[end]-Δpec[end]*ecb[end-1]-pec[end]*Δecb[end])
+    println("ΔEkb-Δpek*e_{kb-1}-pek*Δekb=",ΔEkb[end]-Δpek[end]*ekb[end-1]-pek[end]*Δekb[end])
+    println("ΔEc-Δpec*e_{c-1}-pec*Δec=",ΔEc[end]-Δpec[end]*ec[end-1]-pec[end]*Δec[end])
+    println("ΔEk-Δpek*e_{k-1}-pek*Δek=",ΔEk[end]-Δpek[end]*ek[end-1]-pek[end]*Δek[end])
+    println("Hb-H_{b-1}-ΔHb=",Hb[end]-Hb[end-1]-ΔHb[end])
+    println("H-H_{-1}-ΔH=",H[end]-H[end-1]-ΔH[end])
+    println("ec-eci-ecb=",ec[end]-eci[end]-ecb[end])
+    println("ek-eki-ekb=",ek[end]-eki[end]-ekb[end])
+    println("NWw+NWi+NWc+NWk+NWb+NWg-K=",NWw[end]+NWi[end]+NWc[end]+NWk[end]+NWb[end]+NWg[end]-K[end])
     println("-NWw+Mw-Lw+Hw=",-NWw[end]+Mw[end]-Lw[end]+Hw[end])
-    println("-NWi+Mi+Ei=",-NWi[end]+Mi[end]+Ei[end])
-    println("-NWf+K+Mf-E-Lf=",-NWf[end]+K[end]+Mf[end]-E[end]-Lf[end])
-    println("-NWb-M+Eb+L+Hb=",-NWb[end]-M[end]+Eb[end]+L[end]+Hb[end])
-    println("-NWg-H=",-NWg[end]-H[end])
+    println("-NWc+Kc+Mc-Ec-Lc=",-NWc[end]+Kc[end]+Mc[end]-Ec[end]-Lc[end])
+    println("-NWk+Kk+Mk-Ek-Lk=",-NWc[end]+Kc[end]+Mc[end]-Ec[end]-Lc[end])
+    println("-NWg+Kg-H=",-NWg[end]+Kg[end]-H[end])
 end
 
 run()
 
 function plot_transition()
-    plot(p[end-50:end]./p[end-50], label="p")
+    plot(p, label="p")
+    plot!(pk, label="pk")
     savefig("figs/p.png")
 
-    plot(pe[end-50:end]./p[end-50], label="pe")
+    plot(pec, label="pec")
+    plot!(pek, label="pek")
     savefig("figs/pe.png")
 
-    plot(NLw[end-50:end]./G[end-50], label="NLw")
-    plot!(NLi[end-50:end]./G[end-50], label="NLi")
-    plot!(NLf[end-50:end]./G[end-50], label="NLf")
-    plot!(NLb[end-50:end]./G[end-50], label="NLb")
-    plot!(NLg[end-50:end]./G[end-50], label="NLg")
+    plot(NLw, label="NLw")
+    plot!(NLi, label="NLi")
+    plot!(NLc, label="NLc")
+    plot!(NLk, label="NLk")
+    plot!(NLb, label="NLb")
+    plot!(NLg, label="NLg")
     savefig("figs/NL.png")
 
-    plot(u[end-50:end], label="u")
+    plot(uc, label="uc")
+    plot!(uk, label="uk")
     savefig("figs/u.png")
 
-    plot(W[end-50:end]./G[end-50], label="W")
-    plot!(Wf[end-50:end]./G[end-50], label="Wf")
-    plot!(Wb[end-50:end]./G[end-50], label="Wb")
-    plot!(Wg[end-50:end]./G[end-50], label="Wg")
+    plot(W, label="W")
+    plot!(Wc, label="Wc")
+    plot!(Wk, label="Wk")
+    plot!(Wb, label="Wb")
+    plot!(Wg, label="Wg")
     savefig("figs/W.png")
 
-    plot(Π[end-50:end]./G[end-50], label="Π")
-    plot!(Πf[end-50:end]./G[end-50], label="Πf")
-    plot!(Πb[end-50:end]./G[end-50], label="Πb")
-    plot!(Πi[end-50:end]./G[end-50], label="Πi")
-    savefig("figs/Π.png")
+    plot(Πc, label="Πc")
+    plot!(Πcc, label="Πcc")
+    plot!(Πcb, label="Πcb")
+    plot!(Πci, label="Πci")
+    savefig("figs/Πc.png")
 
-    plot(k[end-50:end]./g[end-50], label="k")
-    plot!(i[end-50:end]./g[end-50], label="i")
-    savefig("figs/k_and_i.png")
+    plot(Πk, label="Πk")
+    plot!(Πkk, label="Πkf")
+    plot!(Πkb, label="Πkb")
+    plot!(Πki, label="Πki")
+    savefig("figs/Πk.png")
 
-    plot(C[end-50:end]./G[end-50], label="C")
-    plot!(Ci[end-50:end]./G[end-50], label="Ci")
-    plot!(Cw[end-50:end]./G[end-50], label="Cw")
+    plot(kc, label="kc")
+    plot!(kk, label="kk")
+    plot!(kg, label="kg")
+    savefig("figs/k.png")
+
+    plot(ic, label="ic")
+    plot!(ik, label="ik")
+    plot!(ig, label="ig")
+    savefig("figs/i.png")
+
+    plot(C, label="C")
+    plot!(Ci, label="Ci")
+    plot!(Cw, label="Cw")
     savefig("figs/nominal_C.png")
 
-    plot(ζ2[end-50:end], label="ζ2")
+    plot(ζ2, label="ζ2")
     savefig("figs/ζ2.png")
 
-    plot(C[end-50:end]./G[end-50], label="C")
-    plot!(I[end-50:end]./G[end-50], label="I")
-    plot!(G[end-50:end]./G[end-50], label="G")
+    plot(C, label="C")
+    plot!(Ic, label="Ic")
+    plot!(Ik, label="Ik")
+    plot!(Ig, label="Ig")
+    plot!(G, label="G")
     savefig("figs/nominal_Y.png")
 
-    plot(c[end-50:end]./g[end-50], label="c")
-    plot!(i[end-50:end]./g[end-50], label="i")
-    plot!(g[end-50:end]./g[end-50], label="g")
+    plot(c, label="c")
+    plot!(ic, label="ic")
+    plot!(ik, label="ik")
+    plot!(ig, label="ig")
+    plot!(g, label="g")
     savefig("figs/y.png")
 
-    plot(M[end-50:end]./G[end-50], label="M")
-    plot!(Mw[end-50:end]./G[end-50], label="Mw")
-    plot!(Mi[end-50:end]./G[end-50], label="Mi")
-    plot!(Mf[end-50:end]./G[end-50], label="Mf")
+    plot(M, label="M")
+    plot!(Mw, label="Mw")
+    plot!(Mi, label="Mi")
+    plot!(Mc, label="Mc")
+    plot!(Mk, label="Mk")
     savefig("figs/M.png")
 
-    plot(L[end-50:end]./G[end-50], label="L")
-    plot!(Lw[end-50:end]./G[end-50], label="Lw")
-    plot!(Lf[end-50:end]./G[end-50], label="Lf")
+    plot(L, label="L")
+    plot!(Lw, label="Lw")
+    plot!(Lc, label="Lc")
+    plot!(Lk, label="Lk")
     savefig("figs/L.png")
 
-    plot(NWw[end-50:end]./G[end-50], label="NWw")
-    plot!(NWi[end-50:end]./G[end-50], label="NWi")
-    plot!(NWf[end-50:end]./G[end-50], label="NWf")
-    plot!(NWb[end-50:end]./G[end-50], label="NWb")
-    plot!(NWg[end-50:end]./G[end-50], label="NWg")
+    plot(NWw, label="NWw")
+    plot!(NWi, label="NWi")
+    plot!(NWc, label="NWc")
+    plot!(NWk, label="NWk")
+    plot!(NWb, label="NWb")
+    plot!(NWg, label="NWg")
     savefig("figs/NW.png")
 
-    plot(Ei[end-50:end]./G[end-50], label="Ei")
-    plot!(E[end-50:end]./G[end-50], label="E")
-    plot!(Eb[end-50:end]./G[end-50], label="Eb")
-    savefig("figs/nominal_E.png")
+    plot(Eci, label="Eci")
+    plot!(Ec, label="Ec")
+    plot!(Ecb, label="Ecb")
+    savefig("figs/nominal_Ec.png")
 
-    plot(ei[end-50:end], label="ei")
-    plot!(eb[end-50:end], label="eb")
-    savefig("figs/e.png")
+    plot(Eki, label="Eki")
+    plot!(Ek, label="Ek")
+    plot!(Ekb, label="Ekb")
+    savefig("figs/nominal_Ek.png")
 
-    plot(Hw[end-50:end]./G[end-50], label="Hw")
-    plot!(Hb[end-50:end]./G[end-50], label="Hb")
-    plot!(H[end-50:end]./G[end-50], label="H")
+    plot(eci, label="eci")
+    plot!(ecb, label="ecb")
+    plot!(ec, label="ec")
+    savefig("figs/ec.png")
+
+    plot(eki, label="eki")
+    plot!(ekb, label="ekb")
+    plot!(ek, label="ek")
+    savefig("figs/ek.png")
+
+    plot(Hw, label="Hw")
+    plot!(Hb, label="Hb")
+    plot!(H, label="H")
     savefig("figs/H.png")
 
-    plot(Tiw[end-50:end]./G[end-50], label="Tiw")
-    plot!(Tii[end-50:end]./G[end-50], label="Tii")
-    plot!(Ti[end-50:end]./G[end-50], label="Ti")
+    plot(Tiw, label="Tiw")
+    plot!(Tii, label="Tii")
+    plot!(Ti, label="Ti")
     savefig("figs/Ti.png")
 
-    plot(Tew[end-50:end]./G[end-50], label="Tew")
-    plot!(Tei[end-50:end]./G[end-50], label="Tei")
-    plot!(Tef[end-50:end]./G[end-50], label="Tef")
-    plot!(Te[end-50:end]./G[end-50], label="Te")
+    plot(Tew, label="Tew")
+    plot!(Tei, label="Tei")
+    plot!(Tec, label="Tec")
+    plot!(Tek, label="Tek")
+    plot!(Te, label="Te")
     savefig("figs/Te.png")
 
-    plot(Tfb[end-50:end]./G[end-50], label="Tfb")
-    plot!(Tff[end-50:end]./G[end-50], label="Tff")
-    plot!(Tf[end-50:end]./G[end-50], label="Tf")
+    plot(Tfb, label="Tfb")
+    plot!(Tfc, label="Tfc")
+    plot!(Tfk, label="Tfk")
+    plot!(Tf, label="Tf")
     savefig("figs/Tf.png")
 
-    plot(Πi[end-50:end]./G[end-50], label="Πi")
-    plot!(Π[end-50:end]./G[end-50], label="Π")
-    plot!(Πf[end-50:end]./G[end-50], label="Πf")
-    plot!(Πb[end-50:end]./G[end-50], label="Πb")
-    savefig("figs/Π.png")
+    plot(Πci, label="Πci")
+    plot!(Πc, label="Πc")
+    plot!(Πcc, label="Πcc")
+    plot!(Πcb, label="Πcb")
+    savefig("figs/Πc.png")
+
+    plot(Πki, label="Πki")
+    plot!(Πk, label="Πk")
+    plot!(Πkk, label="Πkk")
+    plot!(Πkb, label="Πkb")
+    savefig("figs/Πc.png")
 end
 plot_transition()
 
@@ -400,13 +529,13 @@ function save_mock_data()
 end
 function plot_mock_and_control()
     plot(mock_C[end-50:end]./mock_G[end-50], label="mock")
-    plot!(C[end-50:end]./G[end-50], label="control")
+    plot!(C, label="control")
     savefig("figs/diff_nominal_C.png")
     plot(mock_c[end-50:end]./mock_g[end-50], label="mock")
     plot!(c[end-50:end]./g[end-50], label="control")
     savefig("figs/diff_c.png")
     plot(mock_I[end-50:end]./mock_G[end-50], label="mock")
-    plot!(I[end-50:end]./G[end-50], label="control")
+    plot!(I, label="control")
     savefig("figs/diff_nominal_I.png")
     plot(mock_i[end-50:end]./mock_g[end-50], label="mock")
     plot!(i[end-50:end]./g[end-50], label="control")
@@ -415,13 +544,13 @@ function plot_mock_and_control()
     plot!(p[end-50:end]./p[end-50], label="control")
     savefig("figs/diff_p.png")
     plot(mock_W[end-50:end]./mock_G[end-50], label="mock")
-    plot!(W[end-50:end]./G[end-50], label="control")
+    plot!(W, label="control")
     savefig("figs/diff_nominal_W.png")
     plot(mock_W[end-50:end]./mock_p[end-50:end]./mock_G[end-50], label="mock")
-    plot!(W[end-50:end]./p[end-50:end]./G[end-50], label="control")
+    plot!(W[end-50:end]./p, label="control")
     savefig("figs/diff_real_W.png")
     plot(mock_G[end-50:end]./mock_G[end-50], label="mock")
-    plot!(G[end-50:end]./G[end-50], label="control")
+    plot!(G, label="control")
     savefig("figs/diff_nominal_G.png")
     plot(mock_g[end-50:end]./mock_g[end-50], label="mock")
     plot!(g[end-50:end]./g[end-50], label="control")
@@ -430,156 +559,72 @@ function plot_mock_and_control()
     plot!(pe[end-50:end]./pe[end-50], label="control")
     savefig("figs/diff_pe.png")
     plot(mock_K[end-50:end]./mock_G[end-50], label="mock")
-    plot!(K[end-50:end]./G[end-50], label="control")
+    plot!(K, label="control")
     savefig("figs/diff_nominal_K.png")
     plot(mock_k[end-50:end]./mock_g[end-50], label="mock")
     plot!(k[end-50:end]./g[end-50], label="control")
     savefig("figs/diff_k.png")
     plot(mock_NLw[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NLw[end-50:end]./G[end-50], label="control")
+    plot!(NLw, label="control")
     savefig("figs/diff_NLw.png")
     plot(mock_NLi[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NLi[end-50:end]./G[end-50], label="control")
+    plot!(NLi, label="control")
     savefig("figs/diff_NLi.png")
     plot(mock_NLf[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NLf[end-50:end]./G[end-50], label="control")
+    plot!(NLf, label="control")
     savefig("figs/diff_NLf.png")
     plot(mock_NLb[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NLb[end-50:end]./G[end-50], label="control")
+    plot!(NLb, label="control")
     savefig("figs/diff_NLb.png")
     plot(mock_NLg[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NLg[end-50:end]./G[end-50], label="control")
+    plot!(NLg, label="control")
     savefig("figs/diff_NLg.png")
     plot(mock_M[end-50:end]./mock_G[end-50], label="mock")
-    plot!(M[end-50:end]./G[end-50], label="control")
+    plot!(M, label="control")
     savefig("figs/diff_M.png")
     plot(mock_H[end-50:end]./mock_G[end-50], label="mock")
-    plot!(H[end-50:end]./G[end-50], label="control")
+    plot!(H, label="control")
     savefig("figs/diff_H.png")
     plot(mock_L[end-50:end]./mock_G[end-50], label="mock")
-    plot!(L[end-50:end]./G[end-50], label="control")
+    plot!(L, label="control")
     savefig("figs/diff_L.png")
     plot(mock_Te[end-50:end]./mock_G[end-50], label="mock")
-    plot!(Te[end-50:end]./G[end-50], label="control")
+    plot!(Te, label="control")
     savefig("figs/diff_Te.png")
     plot(mock_Tf[end-50:end]./mock_G[end-50], label="mock")
-    plot!(Tf[end-50:end]./G[end-50], label="control")
+    plot!(Tf, label="control")
     savefig("figs/diff_Tf.png")
     plot(mock_Ti[end-50:end]./mock_G[end-50], label="mock")
-    plot!(Ti[end-50:end]./G[end-50], label="control")
+    plot!(Ti, label="control")
     savefig("figs/diff_Ti.png")
-    plot(mock_u[end-50:end], label="mock")
-    plot!(u[end-50:end], label="control")
+    plot(mock_u, label="mock")
+    plot!(u, label="control")
     savefig("figs/diff_u.png")
     plot(mock_Π[end-50:end]./mock_G[end-50], label="mock")
-    plot!(Π[end-50:end]./G[end-50], label="control")
+    plot!(Π, label="control")
     savefig("figs/diff_Π.png")
     plot(mock_NWw[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NWw[end-50:end]./G[end-50], label="control")
+    plot!(NWw, label="control")
     savefig("figs/diff_NWw.png")
     plot(mock_NWi[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NWi[end-50:end]./G[end-50], label="control")
+    plot!(NWi, label="control")
     savefig("figs/diff_NWi.png")
     plot(mock_NWf[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NWf[end-50:end]./G[end-50], label="control")
+    plot!(NWf, label="control")
     savefig("figs/diff_NWf.png")
     plot(mock_NWb[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NWb[end-50:end]./G[end-50], label="control")
+    plot!(NWb, label="control")
     savefig("figs/diff_NWb.png")
     plot(mock_NWg[end-50:end]./mock_G[end-50], label="mock")
-    plot!(NWg[end-50:end]./G[end-50], label="control")
+    plot!(NWg, label="control")
     savefig("figs/diff_NWg.png")
 end
 
-mock_C, mock_c, mock_I, mock_i, mock_p, mock_W, mock_G, mock_g, mock_pe, mock_K, mock_k, mock_NLw, mock_NLi, mock_NLf, mock_NLb, mock_NLg, mock_M, mock_H, mock_L, mock_Te, mock_Tf, mock_Ti, mock_u, mock_Π, mock_NWw, mock_NWi, mock_NWf, mock_NWb, mock_NWg = save_mock_data()
+#mock_C, mock_c, mock_I, mock_i, mock_p, mock_W, mock_G, mock_g, mock_pe, mock_K, mock_k, mock_NLw, mock_NLi, mock_NLf, mock_NLb, mock_NLg, mock_M, mock_H, mock_L, mock_Te, mock_Tf, mock_Ti, mock_u, mock_Π, mock_NWw, mock_NWi, mock_NWf, mock_NWb, mock_NWg = save_mock_data()
 #   初期化
-G, GD, g, gD = zeros(T), zeros(T), zeros(T), zeros(T)
-Wf, Wg, Wb, W, wg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-Cw, Ci, C, cw, ci, c, CwD, CiD = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-K, k = zeros(T), zeros(T)
-Mw, Mi, Mf, M = zeros(T), zeros(T), zeros(T), zeros(T)
-Ei, E, Eb, ei, e, eb = zeros(T), zeros(T), zeros(T), zeros(T), fill(100.0, T), zeros(T)
-Lw, Lf, L, LfD = zeros(T), zeros(T), zeros(T), zeros(T)
-Hw, Hb, H = zeros(T), zeros(T), zeros(T)
-NWw, NWi, NWf, NWb, NWg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-NLw, NLi, NLf, NLb, NLg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-Tef, Tei, Tew, Te = zeros(T), zeros(T), zeros(T), zeros(T)
-Tii, Tiw, Ti = zeros(T), zeros(T), zeros(T)
-Tew, Tei, Tef, Te = zeros(T), zeros(T), zeros(T), zeros(T)
-Tff, Tfb, Tf = zeros(T), zeros(T), zeros(T)
-Πi, Π, Πf, Πb = zeros(T), zeros(T), zeros(T), zeros(T)
-I, i = zeros(T), zeros(T)
-p, pe = zeros(T), zeros(T)
-u, Δu, ue = zeros(T), zeros(T), zeros(T)
-Δk, ΔK = zeros(T), zeros(T), zeros(T), zeros(T)
-ΔMw, ΔMi, ΔMf, ΔM = zeros(T), zeros(T), zeros(T), zeros(T)
-ΔLw, ΔLf, ΔL = zeros(T), zeros(T), zeros(T)
-Δei, Δeb, ΔEi, ΔEb, ΔE = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-ΔHw, ΔHb, ΔH = zeros(T), zeros(T), zeros(T)
-Δp, Δpe = zeros(T), zeros(T), zeros(T)
-Le, Ebe = zeros(T), zeros(T)
-We, Tiwe, Tewe = zeros(T), zeros(T), zeros(T)
-Πie, Πbe, Ee, Tiie, Teie = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
-NWie, ΔNWi = zeros(T), zeros(T)
-ΔW, ΔTiw, ΔTew = zeros(T), zeros(T), zeros(T)
-ΔΠi, ΔΠb, ΔTii, ΔTei = zeros(T), zeros(T), zeros(T), zeros(T)
-ΔCi, ΔCw = zeros(T), zeros(T)
-EiT, EbT = zeros(T), zeros(T)
-K[1] = 300
-Mw[1], Mi[1], Mf[1], M[1] = 400.0, 50.0, 150.0, 600.0
-Ei[1], E[1], Eb[1] = 50.0, 100.0, 50.0
-ei[1], e[1], eb[1] = 50.0, 100.0, 50.0
-Lw[1], Lf[1], L[1] = 200.0, 0.0, 200.0
-Hw[1], Hb[1], H[1] = 20.0, 580.0, 600.0
-G[1], gD[1] = G0, G0
-Wf[1], Wg[1], W[1], wg[1] = 1.0*G0, 0.5*G0, 1.5*G0, 0.5*G0
-p[1], pe[1] = 1.0, 1.0
-k[1] = K[1]/p[1]
-CwD[1], CiD[1] = 1.0*G0, 0.1*G0
-Cw[1], Ci[1] = CwD[1]/max(1, (CwD[1] + CiD[1])/(p[1]*ζ1*k[1])), CiD[1]/max(1, (CwD[1] + CiD[1])/(p[1]*ζ1*k[1]))
-cw[1], ci[1] = Cw[1]/p[1], Ci[1]/p[1]
-C[1], c[1] = Cw[1] + Ci[1], cw[1] + ci[1]
-u[1] = min(1, (C[1] + Ci[1])/(p[1] * ζ1 * k[1]))
-ue[1] = u[1]
-Π[1] = C[1] + I[1] + G[1] - Wf[1] - Tef[1] - Tff[1] - r*Lf[1]
-Πi[1] = max(0, θ1*(Π[1]-I[1])*Ei[1]/E[1] + θ2*(Mf[1]-Lf[1]))
-Πb[1] = max(0, θ1*(Π[1]-I[1])*Eb[1]/E[1] + θ2*(Mf[1]-Lf[1]))
-Πf[1] = Π[1] - Πi[1] - Πb[1]
-Tiw[1], Tii[1], Tei[1], Tew[1] = τ1*W[1], τ1*Πi[1], γ2*(Mi[1] + Ei[1]), γ2*(Mw[1] + Hw[1])
-Le[1] = L[1]
-Πie[1], Πbe[1], Ee[1] = Πi[1], Πb[1], E[1]
-We[1], Tiwe[1], Tewe[1] = W[1], Tiw[1], Tew[1]
-Tiie[1], Teie[1] = Tii[1], Tei[1]
-EiT[1], EbT[1] = Ei[1], Eb[1]
-NLw[1] = -Cw[1] + W[1] - Tiw[1] - Tew[1] - r*L[1]
-ΔMw[1] = NLw[1] # ΔLw[1] = ΔHw[1] = 0ということにする
-NLi[1] = Πi[1] - Ci[1] - Tii[1] - Tei[1]  # i[1] = 0を仮定
-ΔMi[1] = NLi[1]  # Δei[1] = 0ということにする
-NLf[1] = Πf[1]  # i[1] = 0を仮定
-ΔMf[1] = NLf[1] # ΔLf[1] = 0を仮定
-Ti[1] = Tiw[1] + Tii[1]
-Te[1] = Tew[1] + Tei[1] + Tef[1]
-ΔM[1] = ΔMw[1] + ΔMi[1] + ΔMf[1]
-ΔL[1] = ΔLw[1] + ΔLf[1]
-NLb[1] = -Tfb[1] + Πb[1] + r*L[1]
-ΔHb[1] = NLb[1] + ΔM[1] - ΔL[1] - pe[1]*Δeb[1]
-ΔH[1] = ΔHw[1] + ΔHb[1]
-NLg[1] = -G[1] - Wg[1] + Ti[1] + Te[1] + Tf[1]
-NWw[1] = Mw[1] - Lw[1] + Hw[1]
-NWi[1] = Mi[1] + Ei[1]
-NWf[1] = K[1] + Mf[1] - E[1] - Lf[1]
-NWb[1] = -M[1] + Eb[1] + L[1] + Hb[1]
-NWg[1] = -H[1]
-println("------initial------")
-println("-G-Wg+Ti+Te+Tf+ΔH=", -G[1]-Wg[1]+Ti[1]+Te[1]+Tf[1]+ΔH[1])
-println("NLw+NLi+NLf+NLb+NLg=", NLw[1]+NLi[1]+NLf[1]+NLb[1]+NLg[1])
-println("-M+Mw+Mi+Mf=", -M[1]+Mw[1]+Mi[1]+Mf[1])
-println("-E+Ei+Eb=", -E[1]+Ei[1]+Eb[1])
-println("-L+Lw+Lf=", -L[1]+Lw[1]+Lf[1])
-println("-H+Hw+Hf=", -H[1]+Hw[1]+Hb[1])
-println("NWw+NWi+NWf+NWb+NWg-K=", NWw[1]+NWi[1]+NWf[1]+NWb[1]+NWg[1]-K[1])
+
 #   パラメータ変更
 
 #   controlのシミュレーションと、mockとcontrolの比較のプロット
-run()
-plot_mock_and_control()
+#run()
+#plot_mock_and_control()

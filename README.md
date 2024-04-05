@@ -14,7 +14,11 @@
 
 # 1. 作業メモ
 
-- パラメータの整理
+要修正まとめ
+
+- 生産量当たりの賃金が、消費財生産企業と資本財生産企業で、差が開いていく。生産量当たりの賃金の増加率が同調するように
+- 株式保有割合が、投資家に偏りすぎる。長期均衡状態で半々あたりになるように
+- 株式発行量の総量が、実質の経済規模と負の相関がある。長期均衡状態で比例するように
 
 # 2. モデルでやりたいことリスト
 
@@ -29,7 +33,6 @@
 - カレツキアンモデルの賃金主導型と利潤主導型が再現されているかどうか確認
   - 再現されないなら、それはなぜかを考察
     - 企業の内部資金がネックになって投資量が決まるときは利潤を増やすほど経済成長し、消費需要がネックになって投資量が決まるときは賃金を増やすほど経済成長する、というのが自分の直感ではある。内部資金と需要の一次結合で投資水準を決めるという仮定をカレツキアンモデルは採用しているようだが（要確認）カレツキアンモデルが示す性質はその仮定に決定的に依存しているのではないか？
-      - $\epsilon_2$ を大きくすると賃金分配率が上がる。このパラメータで調整する
     - そもそも技術や制度に由来する一人当たりの生産能力自体がネックになっている場合は、利潤分配率や労働分配率と技術進歩の速度を関連付けない限り、利潤主導型とも賃金主導型とも異なる成長が起こるはず。
   - 賃金主導型成長だけ再現されるなら、その理由を考察
     - 賃金主導型成長が起こる条件を帰納的に探す
@@ -41,33 +44,34 @@
 # 3. 行動方程式、上から計算
 
 - $\zeta_2 = \zeta_{2-1} (1 + \zeta_4 \cdot abs(randn()))$
-- $\zeta_3 = \zeta_{4-1} (1 + \zeta_4 \cdot abs(randn()))$
-- $W_c = (1 - \epsilon_1)W_{c-1} + \epsilon_1 \cdot \max(0, \epsilon_2(W_{c-1} + \Pi_{c-1}))$
-- $W_k = (1 - \epsilon_1)W_{k-1} + \epsilon_1 \cdot \max(0, \epsilon_2(W_{k-1} + \Pi_{k-1}))$
-- $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_3(\Pi_{b-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
+- $\zeta_3 = \zeta_{3-1} (1 + \zeta_4 \cdot abs(randn()))$
+- $W_c = (1 - \epsilon_1)W_{c-1} + \epsilon_1 W_{c-1} \exp(\epsilon_2 (u_{c-1} - u^T))$
+- $W_k = (1 - \epsilon_1)W_{k-1} + \epsilon_1 W_{k-1} \exp(\epsilon_2 (u_{k-1} - u^T))$
+- $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_3(\Pi_{cb-1} + \Pi_{kb-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
 - $T_{ec} = \gamma_1 K_{c-1}$
 - $T_{ek} = \gamma_1 K_{k-1}$
-- $T_{ei} = \gamma_2 (M_{i-1} + E_{i-1})$
+- $T_{ei} = \gamma_2 (M_{i-1} + E_{ci-1} + E_{ki-1})$
 - $T_{ew} = \gamma_2 (M_{w-1} + H_{w-1})$
-- $p = \frac{W_c+T_{ec}+T_{fc}^e+r L_{c-1}}{c^e+g^e}$
+- $p = \frac{p_k i_c^e W_c+T_{ec}+T_{fc}^e+r L_{c-1}}{c^e+g^e}$
   - $p = p_{-1} \exp\{\mu_3 \min(1, \max(u_{c-1}^e, \frac{C_{w-1}^D + C_{i-1}^D + G_{-1}^D}{p_{-1} \zeta_{2-1}}) - u^T)\}$
 - $p_k = \frac{W_k+T_{ek}+T_{fk}^e+r L_{k-1}}{i_c^e+i_g^e}$
-  - $p_k = p_{k-1} \exp\{\mu_3 \min(1, \max(u_{k-1}^e, \frac{I_{f-1}^D + I_{g-1}^D}{p_{k-1} \zeta_{4-1}}) - u^T)\}$
+  - $p_k = p_{k-1} \exp\{\mu_3 \min(1, \max(u_{k-1}^e, \frac{I_{f-1}^D + I_{g-1}^D}{p_{k-1} \zeta_{3-1}}) - u^T)\}$
 - $w_g = w_{g-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
 - $g^D = g^D_{-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
 - $C_w^D = ((1 - \alpha_6) C_{w-1}^D + \alpha_6 \cdot \max\{0, \alpha_1 (W^e-T_{iw}^e-T_{ew}^e-r L_{w-1}) + \alpha_2 (M_{w-1} + H_{w-1} - L_{w-1})\}) \frac{C_{w-1}}{C_{w-1}-\Delta C_{w-1}}$
-- $C_i^D = ((1 - \alpha_6) C_{i-1}^D + \alpha_6 \cdot \max(0, \alpha_3 (\Pi_{ci}^e+\Pi_{ki}^e-T_{ii}^e-T_{ei}^e) + (\alpha_4 + \alpha_5 (\frac{E_{ci-1}}{E_{c-1}}+\frac{E_{ki-1}}{E_{k-1}})) M_{i-1})) \frac{C_{w-1}}{C_{w-1}-\Delta C_{w-1}}$
-- $C_w = \frac{C_w^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
-- $C_i = \frac{C_i^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
-- $G = \frac{G^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{f-1}, \zeta_2)})}$
-- $i_c^D = btw(0, (u_{c-1} - u^T)k_{c-1} + \beta_1 k_{c-1}, \beta_2 \frac{M_{c-1} - L_{c-1}}{p})$
-- $i_k^D = btw(0, (u_{k-1} - u^T)k_{k-1} + \beta_1 k_{k-1}, \beta_2 \frac{M_{k-1} - L_{k-1}}{p_k})$
-- $i_g^D = i_{g-1}(1 + \delta_1 - \delta_2 \frac{p_k-p_{k-1}}{p_{k-1}})$
-- $i_c = \frac{i_c^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_3)})}$
-- $i_k = \frac{i_k^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_3)})}$
-- $i_g = \frac{i_g^D}{\max(1, \frac{i_f^D + i_g^D}{p \cdot \min(\zeta_5 k_{f-1}, \zeta_3)})}$
-- $\Delta e = \max(0, \frac{\kappa_1 (I_f-\beta_1 K_{f-1})}{p_{e-1}}) - \max(0, \frac{\kappa_2 (M_{f-1} - L_{f-1})}{p_{e-1}} - \kappa_3 c)$
-- $T_{ii} = \tau_1 \Pi_{i-1}$
+- $C_i^D = ((1 - \alpha_6) C_{i-1}^D + \alpha_6 \cdot \max(0, \alpha_3 (\Pi_{ci}^e+\Pi_{ki}^e-T_{ii}^e-T_{ei}^e) + (\alpha_4 + \alpha_5 \frac{E_{ci-1} + E_{ki-1}}{E_{c-1} + E_{k-1}}) M_{i-1})) \frac{C_{i-1}}{C_{i-1}-\Delta C_{i-1}}$
+- $C_w = \frac{C_w^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{c-1}, \zeta_2)})}$
+- $C_i = \frac{C_i^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{c-1}, \zeta_2)})}$
+- $G = \frac{G^D}{\max(1, \frac{C_w^D + C_i^D + G^D}{p \cdot \min(\zeta_1 k_{c-1}, \zeta_2)})}$
+- $i_c^D = btw(0, (u_{c-1} - u^T)k_{c-1} + \beta_1 k_{c-1}, max(0, \beta_2 \frac{M_{c-1} - L_{c-1}}{p_k}))$
+- $i_k^D = btw(0, (u_{k-1} - u^T)k_{k-1} + \beta_1 k_{k-1}, max(0, \beta_2 \frac{M_{k-1} - L_{k-1}}{p_k}))$
+- $i_g^D = i_{g-1}^D(1 + \delta_1 - \delta_2 \frac{p_k-p_{k-1}}{p_{k-1}})$
+- $i_c = \frac{i_c^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
+- $i_k = \frac{i_k^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
+- $i_g = \frac{i_g^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
+- $\Delta e_c = \max(0, \frac{\kappa_1 (p_k i_c^D-\beta_1 K_{c-1})}{p_{ec-1}}) - \max(0, \frac{\kappa_2 (M_{c-1} - L_{c-1})}{p_{ec-1}} - \kappa_3 c)$
+- $\Delta e_k = \max(0, \frac{\kappa_1 (p_k i_k^D-\beta_1 K_{k-1})}{p_{ek-1}}) - \max(0, \frac{\kappa_2 (M_{k-1} - L_{k-1})}{p_{ek-1}} - \kappa_3 c)$
+- $T_{ii} = \tau_1 (\Pi_{ci-1} + \Pi_{ki-1})$
 - $T_{iw} = \tau_1 W_{-1}$
 - $T_{fc} = \tau_2 (C+G-W_c-T_{ec}-r L_{c-1})$
 - $T_{fk} = \tau_2 (I_f+I_g-W_k-T_{ek}-r L_{k-1})$
@@ -80,12 +84,12 @@
 - $L_w = \iota_2 W$
 - $E_{ci}^T= \kappa_4 NW_i^e \frac{C+G}{C+G+I_c+I_g}$
 - $E_{ki}^T= \kappa_4 NW_i^e \frac{I_c+I_g}{C+G+I_c+I_g}$
-- $E_{cb}^T = ((1 - \kappa_5) E_{cb-1} + \kappa_5 \frac{r_{E-1}}{r_{-1} + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{c-1}}{E_{c-1}+E_{k-1}}$
-- $E_{kb}^T = ((1 - \kappa_5) E_{kb-1} + \kappa_5 \frac{r_{E-1}}{r_{-1} + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{k-1}}{E_{c-1}+E_{k-1}}$
+- $E_{cb}^T = ((1 - \kappa_5) E_{cb-1} + \kappa_5 \frac{r_{E-1}}{r + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{c-1}}{E_{c-1}+E_{k-1}}$
+- $E_{kb}^T = ((1 - \kappa_5) E_{kb-1} + \kappa_5 \frac{r_{E-1}}{r + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{k-1}}{E_{c-1}+E_{k-1}}$
 - $p_{ec} = \frac{E_{ci}^T + E_{cb}^T}{e_c}$
 - $p_{ek} = \frac{E_{ki}^T + E_{kb}^T}{e_k}$
-- $E_{ci} = min(\kappa_4 NW_i \frac{C+G}{C+G+I_c+I_g}, E_c)$
-- $E_{ki} = min(\kappa_4 NW_i \frac{I_c+I_g}{C+G+I_c+I_g}, E_k)$
+- $E_{ci} = min(\kappa_4 NW_i^e \frac{C+G}{C+G+I_c+I_g}, E_c)$
+- $E_{ki} = min(\kappa_4 NW_i^e \frac{I_c+I_g}{C+G+I_c+I_g}, E_k)$
 - $M_i = NW_i - E_{ci} - E_{ki}$
 - $L_c^D = (1 - \iota_4)L_{c-1}^D + \iota_4 max(0, \iota_3 (I_c + W_c + T_{ec} + T_{fc} + r L_{c-1}) - M_{c-1})$
 - $L_c = btw(0, L_c^D, max(0, \iota_5 NL_c))$
@@ -95,13 +99,16 @@
 # 4. 定義式
 
 - $x^e = ((1 - \lambda_e) x^e_{-1} + \lambda_e x_{-1}) \frac{x_{-1}}{x_{-1}-\Delta x_{-1}}$
+  - ただし $x^e \geq 0$ の変数
+- $x^e = ((1 - \lambda_e) x^e_{-1} + \lambda_e x_{-1})$
+  - ただし $x^e < 0$ の可能性がある変数
 - $u_c = \frac{c + g}{\zeta_1 k_{c-1}}$
-- $u_k = \frac{i_f}{\zeta_1 k_{k-1}}$
+- $u_k = \frac{i_f + i_g}{\zeta_5 k_{k-1}}$
 - $NL_w = -C_w+W-T_{iw}-T_{ew}-r L_{w-1}$
-- $NL_i = -C_i-T_{ii}-T_{ei}+\Pi_i$
+- $NL_i = -C_i-T_{ii}-T_{ei}+\Pi_{ci} + \Pi_{ki}$
 - $NL_c = -I_c + \Pi_c$
 - $NL_k = -I_k + \Pi_k$
-- $NL_b = -W_b - T_{fb} + \Pi_b + r L_{-1}$
+- $NL_b = -W_b - T_{fb} + \Pi_{cb} + \Pi_{kb} + r L_{-1}$
 - $NL_g = -I_g + GS$
 - $btw(A, B, C) = max(A, min(B, C))$ ただし( $A \leq C$ )
 - $r_E = \frac{\Pi_{ci} + \Pi_{cb} + \Pi_{ki} + \Pi_{kb}}{E_c + E_k}$
@@ -118,9 +125,12 @@
 - $K_c = p_k k_c$
 - $K_k = p_k k_k$
 - $K_g = p_k k_g$
-- $E_i = p_e e_i$
-- $E = p_e e$
-- $E_b = p_e e_b$
+- $E_{ci} = p_{ce} e_{ci}$
+- $E_c = p_{ce} e_c$
+- $E_{cb} = p_{ce} e_{cb}$
+- $E_{ki} = p_{ke} e_{ki}$
+- $E_k = p_{ke} e_k$
+- $E_{kb} = p_{ke} e_{kb}$
 
 # 5. 会計恒等式
 
@@ -171,8 +181,8 @@
 | 預金の増減                           | $+\Delta M_w$ |        $+\Delta M_i$        |        $+\Delta M_c$        |        $+\Delta M_k$        | $-\Delta M$ |                             |            $0$             |
 | 消費財生産企業株式のキャピタルゲイン |               | $+\Delta p_{ec} \cdot e_{ci-1}$ | $-\Delta p_{ec} \cdot e_{c-1}$  | | $+\Delta p_{ec} \cdot e_{cb-1}$ |             |             $0$             |
 | 資本財生産企業株式のキャピタルゲイン |               | $+\Delta p_{ek} \cdot e_{ki-1}$ |  | $-\Delta p_{ek} \cdot e_{k-1}$ | $+\Delta p_{ek} \cdot e_{kb-1}$ |             |             $0$             |
-| 消費財生産企業株式の増減                           |               |   $+p_{ec} \cdot \Delta e_{ci}$   |    $+p_{ec} \cdot \Delta e_c$    | |  $+p_{ec} \cdot \Delta e_{cb}$   |             |             $0$             |
-| 資本財生産企業株式の増減                           |               |   $+p_{ek} \cdot \Delta e_{ki}$   |     |  $+p_{ek} \cdot \Delta e_k$  |  $+p_{ek} \cdot \Delta e_{kb}$   |             |             $0$             |
+| 消費財生産企業株式の増減                           |               |   $+p_{ec} \cdot \Delta e_{ci}$   |    $-p_{ec} \cdot \Delta e_c$    | |  $+p_{ec} \cdot \Delta e_{cb}$   |             |             $0$             |
+| 資本財生産企業株式の増減                           |               |   $+p_{ek} \cdot \Delta e_{ki}$   |     |  $-p_{ek} \cdot \Delta e_k$  |  $+p_{ek} \cdot \Delta e_{kb}$   |             |             $0$             |
 | 借入の増減                           | $-\Delta L_w$ |                             |        $-\Delta L_c$        | $-\Delta L_k$        |         $+\Delta L$         |             |             $0$             |
 | 現金の増減                           | $+\Delta H_w$ |                     |        |                             |        $+\Delta H_b$        | $-\Delta H$ |             $0$             |                            |
 | 期末純資産                           |    $NW_w$     |           $NW_i$            |           $NW_c$            | $NW_k$            |           $NW_b$            |   $NW_g$    |             $K$             |                            |
@@ -182,14 +192,14 @@
 モデルで使う恒等式にチェックを入れ、隠れた恒等式にはチェックを入れない
 
 - [x] $-C_w+W-T_{iw}-T_{ew}-r L_{w-1} = \Delta M_w - \Delta L_w + \Delta H_w$
-- [x] $-C_i-T_{ii}-T_{ei}+P_i = \Delta M_i + p_e \Delta e_i$
+- [ ] $-C_i-T_{ii}-T_{ei}+\Pi_{ci}+\Pi_{ki} = \Delta M_i + p_{ec} \Delta e_{ci} + p_{ek} \Delta e_{ki}$
 - [x] $\Pi_c = C+G-W_c-T_{ec}-T_{fc}-r L_{c-1}$
 - [x] $\Delta M_c = -I_c + \Pi_{cc} + \Delta L_c + p_{ec} \Delta e_c$
-- [x] $\Pi_k = I_c + I_g-W_k-T_{ek}-T_{fk}-r L_{k-1}$
+- [x] $\Pi_k = I_f + I_g-W_k-T_{ek}-T_{fk}-r L_{k-1}$
 - [x] $\Delta M_k = -I_k + \Pi_{kk} + \Delta L_k + p_{ek} \Delta e_k$
 - [x] $-W_b - T_{fb} + \Pi_{cb} + \Pi_{kb} + r L_{-1} = -\Delta M + \Delta L + p_{ec} \Delta e_{cb} + p_{ek} \Delta e_{kb} + \Delta H_b$
 - [x] $-G-W_g+T_i+T_e+T_f-GS = 0$
-- [ ] $-I_g+GS= \Delta H$
+- [ ] $-I_g+GS+\Delta H=0$
 - [x] $C = C_w + C_i$
 - [x] $I_f = I_c + I_k$
 - [x] $W = W_f + W_g + W_b$
@@ -201,8 +211,10 @@
 - [ ] $NL_w + NL_i + NL_c + NL_k + NL_b + NL_g = 0$
 - [x] $\Delta M = \Delta M_w + \Delta M_i + \Delta M_c + \Delta M_k$
 - [x] $\Delta L = \Delta L_w + \Delta L_c + \Delta L_k$
-- [ ] $\Delta e_i + \Delta e_b - \Delta e = 0$
+- [ ] $\Delta e_{ci} + \Delta e_{cb} - \Delta e_c = 0$
+- [ ] $\Delta e_{ki} + \Delta e_{kb} - \Delta e_k = 0$
 - [x] $\Delta H = \Delta H_w + \Delta H_b$
+- [x] $\Delta k = \Delta k_c + \Delta k_k + \Delta k_g$
 
 ## 5.5. ストックとフローの接続の整合性
 
@@ -214,52 +226,77 @@
 - [x] $\Delta k_c = k_c - k_{c-1}$
 - [x] $\Delta k_k = k_k - k_{k-1}$
 - [x] $\Delta k_g = k_g - k_{g-1}$
-- [x] $K_c = K_{c-1} + \Delta K_c = p_{k-1} k_{c-1} + \Delta p_k \cdot k_{c-1} + p_k \cdot \Delta k_c$
-- [x] $K_k = K_{k-1} + \Delta K_k = p_{k-1} k_{k-1} + \Delta p_k \cdot k_{k-1} + p_k \cdot \Delta k_k$
-- [x] $K_g = K_{g-1} + \Delta K_g = p_{-1} k_{g-1} + \Delta p \cdot k_{g-1} + p \cdot \Delta k_g$
+- [x] $\Delta K_c = K_c - K_{c-1}$
+- [x] $\Delta K_k = K_k - K_{k-1}$
+- [x] $\Delta K_g = K_g - K_{g-1}$
+- [ ] $K = K_{-1} + \Delta K$
+- [ ] $k = k_{-1} + \Delta k$
+- [ ] $\Delta K_c = \Delta p_k \cdot k_{c-1} + p_k \cdot \Delta k_c$
+- [ ] $\Delta K_k = \Delta p_k \cdot k_{k-1} + p_k \cdot \Delta k_k$
+- [ ] $\Delta K_g = \Delta p_k \cdot k_{g-1} + p_k \cdot \Delta k_g$
+- [ ] $\Delta K = \Delta p_k \cdot k_{-1} + p_k \cdot \Delta k$
 - [x] $\Delta M_w = M_w - M_{w-1}$
 - [x] $\Delta M_i = M_i - M_{i-1}$
 - [x] $M_c = M_{c-1} + \Delta M_c$
 - [x] $M_k = M_{k-1} + \Delta M_k$
-- [x] $M = M_{-1} + \Delta M$
+- [ ] $M = M_{-1} + \Delta M$
 - [x] $\Delta L_w = L_w - L_{w-1}$
 - [x] $\Delta L_c = L_c - L_{c-1}$
 - [x] $\Delta L_k = L_k - L_{k-1}$
 - [ ] $L = L_{-1} + \Delta L$
-- [x] $E_{ci} = E_{ci-1} + \Delta E_{ci} = p_{ec-1} e_{ci-1} + \Delta p_{ec} \cdot e_{ci-1} + p_{ec} \cdot \Delta e_{ci}$
-- [x] $E_{ki} = E_{ki-1} + \Delta E_{ki} = p_{ek-1} e_{ki-1} + \Delta p_{ek} \cdot e_{ki-1} + p_{ek} \cdot \Delta e_{ki}$
-- [x] $E_{cb} = E_{cb-1} + \Delta E_{cb} = p_{ec-1} e_{cb-1} + \Delta p_{ec} \cdot e_{cb-1} + p_{ec} \cdot \Delta e_{cb}$
-- [x] $E_{kb} = E_{kb-1} + \Delta E_{kb} = p_{ek-1} e_{kb-1} + \Delta p_{ek} \cdot e_{kb-1} + p_{ek} \cdot \Delta e_{kb}$
-- [x] $E_c = E_{c-1} + \Delta E_c = p_{ec-1} e_{c-1} + \Delta p_{ec} \cdot e_{c-1} + p_{ec} \cdot \Delta e_c$
-- [x] $E_k = E_{k-1} + \Delta E_k = p_{ek-1} e_{k-1} + \Delta p_{ek} \cdot e_{k-1} + p_{ek} \cdot \Delta e_k$
+- [x] $\Delta E_{ci} = E_{ci} - E_{ci-1}$
+- [x] $\Delta E_{ki} = E_{ki} - E_{ki-1}$
+- [x] $\Delta E_{cb} = E_{cb} - E_{cb-1}$
+- [x] $\Delta E_{kb} = E_{kb} - E_{kb-1}$
+- [x] $\Delta E_c = E_c - E_{c-1}$
+- [x] $\Delta E_k = E_k - E_{k-1}$
+- [ ] $\Delta E_{ci} = \Delta p_{ec} \cdot e_{ci-1} + p_{ec} \cdot \Delta e_{ci}$
+- [ ] $\Delta E_{ki} = \Delta p_{ek} \cdot e_{ki-1} + p_{ek} \cdot \Delta e_{ki}$
+- [ ] $\Delta E_{cb} = \Delta p_{ec} \cdot e_{cb-1} + p_{ec} \cdot \Delta e_{cb}$
+- [ ] $\Delta E_{kb} = \Delta p_{ek} \cdot e_{kb-1} + p_{ek} \cdot \Delta e_{kb}$
+- [ ] $\Delta E_c = \Delta p_{ec} \cdot e_{c-1} + p_{ec} \cdot \Delta e_c$
+- [ ] $\Delta E_k = \Delta p_{ek} \cdot e_{k-1} + p_{ek} \cdot \Delta e_k$
+- [x] $e_c = e_{c-1} + \Delta e_c$
+- [x] $\Delta e_{ci} = e_{ci} - e_{ci-1}$
+- [x] $\Delta e_{cb} = e_{cb} - e_{cb-1}$
+- [x] $e_k = e_{k-1} + \Delta e_k$
+- [x] $\Delta e_{ki} = e_{ki} - e_{ki-1}$
+- [x] $\Delta e_{kb} = e_{kb} - e_{ck-1}$
 - [x] $\Delta H_w = H_w - H_{w-1}$
-- [x] $H_b = H_{b-1} + \Delta H_b$
-- [x] $H = H_{-1} + \Delta H$
-- [x] $NW_w = NW_{w-1} + \Delta M_w - \Delta L_w + \Delta H_w (=NW_{w-1} + NL_w)$
-- [x] $NW_i = NW_{i-1} + \Delta M_i + \Delta p_{ec} \cdot e_{ci-1} + \Delta p_{ek} \cdot e_{ki-1} + p_{ec} \cdot \Delta e_{ci} + p_{ek} \cdot \Delta e_{ki} (= NW_{i-1} + NL_i + \Delta p_{ec} \cdot e_{ci-1} + \Delta p_{ek} \cdot e_{ki-1})$
-- [x] $NW_c = NW_{c-1} + \Delta p_k \cdot k_c + \Delta p_k \cdot k_{c-1} + \Delta M_c - \Delta p_{ec} \cdot e_{c-1} + p_{ec} \cdot \Delta e_c - \Delta L_c (= NW_{f-1} + NL_f - \Delta p_{ec} \cdot e_{c-1} + \Delta K_c)$
-- [x] $NW_k = NW_{k-1} + \Delta p_k \cdot k_k + \Delta p_k \cdot k_{k-1} + \Delta M_k - \Delta p_{ek} \cdot e_{k-1} + p_{ek} \cdot \Delta e_k - \Delta L_k (= NW_{f-1} + NL_f - \Delta p_{ec} \cdot e_{c-1} + \Delta K_k)$
-- [x] $NW_b = NW_{b-1} - \Delta M + p_{ec} \cdot \Delta e_{cb} + \Delta p_{ec} \cdot e_{cb-1} + p_{ek} \cdot \Delta e_{kb} + \Delta p_{ek} \cdot e_{kb-1} + \Delta L + \Delta H_b (= NW_{b-1} + NL_b + \Delta p_{ec} \cdot e_{cb-1} + \Delta p_{ek} \cdot e_{kb-1})$
-- [x] $NW_g = NW_{g-1} + p_k \cdot \Delta k_g + \Delta p_k \cdot k_{g-1} - \Delta H (= NW_{g-1} + NL_g + \Delta K_g)$
+- [ ] $H_b = H_{b-1} + \Delta H_b$
+- [ ] $H = H_{-1} + \Delta H$
+- [ ] $NW_w = NW_{w-1} + \Delta M_w - \Delta L_w + \Delta H_w$
+  - [x] $NW_w = NW_{w-1} + NL_w$
+- [ ] $NW_i = NW_{i-1} + \Delta M_i + \Delta p_{ec} \cdot e_{ci-1} + \Delta p_{ek} \cdot e_{ki-1} + p_{ec} \cdot \Delta e_{ci} + p_{ek} \cdot \Delta e_{ki}$
+  - [x] $NW_i = NW_{i-1} + NL_i + \Delta p_{ec} \cdot e_{ci-1} + \Delta p_{ek} \cdot e_{ki-1}$
+- [ ] $NW_c = NW_{c-1} + p_k \cdot \Delta k_c + \Delta p_k \cdot k_{c-1} + \Delta M_c - \Delta p_{ec} \cdot e_{c-1} - p_{ec} \cdot \Delta e_c - \Delta L_c$
+  - [x] $NW_c = NW_{c-1} + NL_c - \Delta p_{ec} \cdot e_{c-1} + \Delta K_c$
+- [ ] $NW_k = NW_{k-1} + p_k \cdot \Delta k_k + \Delta p_k \cdot k_{k-1} + \Delta M_k - \Delta p_{ek} \cdot e_{k-1} - p_{ek} \cdot \Delta e_k - \Delta L_k$
+  - [x] $NW_k = NW_{k-1} + NL_k - \Delta p_{ek} \cdot e_{k-1} + \Delta K_k$
+- [ ] $NW_b = NW_{b-1} - \Delta M + p_{ec} \cdot \Delta e_{cb} + \Delta p_{ec} \cdot e_{cb-1} + p_{ek} \cdot \Delta e_{kb} + \Delta p_{ek} \cdot e_{kb-1} + \Delta L + \Delta H_b$
+  - [x] $NW_b = NW_{b-1} + NL_b + \Delta p_{ec} \cdot e_{cb-1} + \Delta p_{ek} \cdot e_{kb-1}$
+- [ ] $NW_g = NW_{g-1} + p_k \cdot \Delta k_g + \Delta p_k \cdot k_{g-1} - \Delta H$
+  - [x] $NW_g = NW_{g-1} + NL_g + \Delta K_g$
 
 ## 5.6. ストックの整合性
 
 モデルで使う恒等式にチェックを入れ、隠れた恒等式にはチェックを入れない
 
-- [x] $K = K_f + K_g$
+- [x] $K = K_c + K_k + K_g$
+- [x] $k = k_c + k_k + k_g$
 - [x] $M = M_w + M_i + M_c + M_k$
-- [ ] $E_c = E_{ci} + E_{cb}$
-- [ ] $E_k = E_{ki} + E_{kb}$
-- [x] $e_c = e_{ci} + e_{cb}$
-- [x] $e_k = e_{ki} + e_{kb}$
+- [x] $E_{cb} = E_c - E_{ci}$
+- [x] $E_{kb} = E_k - E_{ki}$
+- [ ] $e_c = e_{ci} + e_{cb}$
+- [ ] $e_k = e_{ki} + e_{kb}$
 - [x] $L = L_w + L_c + L_k$
-- [ ] $H = H_w + H_b$
+- [x] $H = H_w + H_b$
 - [ ] $NW_w + NW_i + NW_c + NW_k + NW_b + NW_g = K$
 - [ ] $NW_w = M_w - L_w + H_w$
-- [ ] $NW_i = M_i + E_{ci} + E_{ki}$
+- [x] $NW_i = M_i + E_{ci} + E_{ki}$
 - [ ] $NW_c = K_c + M_c - E_c - L_c$
 - [ ] $NW_k = K_k + M_k - E_k - L_k$
-- [ ] $NW_b = -M + E_{cb} + E_{kb} + L + H_b$
+- [x] $NW_b = -M + E_{cb} + E_{kb} + L + H_b$
 - [ ] $NW_g = K_g-H$
 
 # 6. パラメータの値
@@ -277,13 +314,14 @@
 - $\delta_1 = 0.02$
 - $\delta_2 = 0.3$
 - $\epsilon_1 = 0.5$
-- $\epsilon_2 = 0.8$
+- $\epsilon_2 = 0.5$
 - $\epsilon_3 = 0.7$
 - $\epsilon_4 = 0.05$
 - $\zeta_1 = 1.0$
-- $\zeta_2 = 300.0$ (シミュレーションのための初期値)
-- $\zeta_3 = 1.0$
+- $\zeta_2 = 150.0$ (バーンイン期間の初期値)
+- $\zeta_3 = 150.0$ (バーンイン期間の初期値)
 - $\zeta_4 = 0.023$
+- $\zeta_5 = 1.0$
 - $\theta_1 = 0.4$
 - $\theta_2 = 0.1$
 - $\iota_1 = 0.1$
