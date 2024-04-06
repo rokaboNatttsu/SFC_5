@@ -16,9 +16,10 @@
 
 要修正まとめ
 
-- 生産量当たりの賃金が、消費財生産企業と資本財生産企業で、差が開いていく。生産量当たりの賃金の増加率が同調するように
-- 株式保有割合が、投資家に偏りすぎる。長期均衡状態で半々あたりになるように
-- 株式発行量の総量が、実質の経済規模と負の相関がある。長期均衡状態で比例するように
+- $i_g^D$ と $g^D$ が比例して増えない。同調するように
+- $\delta_1$ と $\zeta_4$ を同じにしたときに、価格が一定で推移するように
+- $\delta_1 > \zeta_4$ のときに、インフレするように
+- $\delta_1 < \zeta_4$ のときに、デフレするように
 
 # 2. モデルでやりたいことリスト
 
@@ -45,8 +46,8 @@
 
 - $\zeta_2 = \zeta_{2-1} (1 + \zeta_4 \cdot abs(randn()))$
 - $\zeta_3 = \zeta_{3-1} (1 + \zeta_4 \cdot abs(randn()))$
-- $W_c = (1 - \epsilon_1)W_{c-1} + \epsilon_1 W_{c-1} \exp(\epsilon_2 (u_{c-1} - u^T))$
-- $W_k = (1 - \epsilon_1)W_{k-1} + \epsilon_1 W_{k-1} \exp(\epsilon_2 (u_{k-1} - u^T))$
+- $W_c = (1 - \epsilon_1)\Omega_c + \epsilon_1 W_{c-1} \exp(\epsilon_2 (u_{c-1} - u^T))$
+- $W_k = (1 - \epsilon_1)\Omega_k + \epsilon_1 W_{k-1} \exp(\epsilon_2 (u_{k-1} - u^T))$
 - $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_3(\Pi_{cb-1} + \Pi_{kb-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
 - $T_{ec} = \gamma_1 K_{c-1}$
 - $T_{ek} = \gamma_1 K_{k-1}$
@@ -84,8 +85,8 @@
 - $L_w = \iota_2 W$
 - $E_{ci}^T= \kappa_4 NW_i^e \frac{C+G}{C+G+I_c+I_g}$
 - $E_{ki}^T= \kappa_4 NW_i^e \frac{I_c+I_g}{C+G+I_c+I_g}$
-- $E_{cb}^T = ((1 - \kappa_5) E_{cb-1} + \kappa_5 \frac{r_{E-1}}{r + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{c-1}}{E_{c-1}+E_{k-1}}$
-- $E_{kb}^T = ((1 - \kappa_5) E_{kb-1} + \kappa_5 \frac{r_{E-1}}{r + r_{E-1}} (L + E_{cb-1} + E_{kb-1}))\frac{E_{k-1}}{E_{c-1}+E_{k-1}}$
+- $E_{cb}^T = ((1 - \kappa_5) E_{cb-1} + \kappa_5 \frac{r_{E-1}}{r + r_{E-1}} (L_{-1} + E_{cb-1} + E_{kb-1}))\frac{E_{c-1}}{E_{c-1}+E_{k-1}}$
+- $E_{kb}^T = ((1 - \kappa_5) E_{kb-1} + \kappa_5 \frac{r_{E-1}}{r + r_{E-1}} (L_{-1} + E_{cb-1} + E_{kb-1}))\frac{E_{k-1}}{E_{c-1}+E_{k-1}}$
 - $p_{ec} = \frac{E_{ci}^T + E_{cb}^T}{e_c}$
 - $p_{ek} = \frac{E_{ki}^T + E_{kb}^T}{e_k}$
 - $E_{ci} = min(\kappa_4 NW_i^e \frac{C+G}{C+G+I_c+I_g}, E_c)$
@@ -112,6 +113,8 @@
 - $NL_g = -I_g + GS$
 - $btw(A, B, C) = max(A, min(B, C))$ ただし( $A \leq C$ )
 - $r_E = \frac{\Pi_{ci} + \Pi_{cb} + \Pi_{ki} + \Pi_{kb}}{E_c + E_k}$
+- $Ωc = ϵ5*p_{-1} (c_{-1} + g_{-1})$
+- $Ωk = ϵ5*p_{-1}*(i_{c-1} + i_{g-1})$
 
 ## 4.1. 名目値と実質値と価格の関係の恒等式
 
@@ -317,10 +320,11 @@
 - $\epsilon_2 = 0.5$
 - $\epsilon_3 = 0.7$
 - $\epsilon_4 = 0.05$
+- $\epsilon_5 = 0.695$
 - $\zeta_1 = 1.0$
 - $\zeta_2 = 150.0$ (バーンイン期間の初期値)
 - $\zeta_3 = 150.0$ (バーンイン期間の初期値)
-- $\zeta_4 = 0.023$
+- $\zeta_4 = 0.03$
 - $\zeta_5 = 1.0$
 - $\theta_1 = 0.4$
 - $\theta_2 = 0.1$

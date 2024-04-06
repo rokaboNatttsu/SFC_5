@@ -1,17 +1,17 @@
 using StatsPlots
 
-T = 100
+T = 200
 
 #   パラメータ設定
 α1, α2, α3, α4, α5, α6 = 0.9, 0.1, 0.1, 0.02, 0.1, 0.5
 β1, β2 = 0.05, 0.5
 γ1, γ2 = 0.015, 0.02
-δ1, δ2 = fill(0.02, T), 0.1
-ϵ1, ϵ2, ϵ3, ϵ4 = 0.5, 1.0, 0.7, 0.05
-ζ1, ζ2, ζ3, ζ4, ζ5 = 1.0, fill(150.0, T), fill(150.0, T), 0.023, 1.0
+δ1, δ2 = fill(0.02, T), 0.3
+ϵ1, ϵ2, ϵ3, ϵ4, ϵ5 = 0.5, 1.0, 0.7, 0.05, 0.693
+ζ1, ζ2, ζ3, ζ4, ζ5 = 1.0, fill(150.0, T), fill(150.0, T), 0.02, 1.0  #   ζ4検討
 for t = 2:T
-    ζ2[t] = ζ2[t-1]*(1 + ζ4*abs(randn()))
-    ζ3[t] = ζ3[t-1]*(1 + ζ4*abs(randn()))
+    ζ2[t] = ζ2[t-1]*(1 + ζ4)    #   ここ元に戻す
+    ζ3[t] = ζ3[t-1]*(1 + ζ4)
 end
 θ1, θ2 = 0.4, 0.1
 ι1, ι2, ι3, ι4, ι5 = 0.1, 1.0, 2.0, 0.5, 5.0
@@ -185,8 +185,9 @@ function run()
         Teie[t] = ((1 - λe)*Teie[t-1] + λe*Tei[t-1])*Tei[t-1]/(Tei[t-1]-ΔTei[t-1])
         NWie[t] = ((1 - λe)*NWie[t-1] + λe*NWi[t-1])
 
-        Wc[t] = (1 - ϵ1)*Wc[t-1] + ϵ1*Wc[t-1]*exp(ϵ2*(uc[t-1] - uT))
-        Wk[t] = (1 - ϵ1)*Wk[t-1] + ϵ1*Wk[t-1]*exp(ϵ2*(uk[t-1] - uT))
+        Ωc, Ωk = ϵ5*p[t-1]*(c[t-1] + g[t-1]), ϵ5*p[t-1]*(ic[t-1] + ig[t-1])
+        Wc[t] = (1 - ϵ1)*Ωc + ϵ1*Wc[t-1]*exp(ϵ2*(uc[t-1] - uT))
+        Wk[t] = (1 - ϵ1)*Ωk + ϵ1*Wk[t-1]*exp(ϵ2*(uk[t-1] - uT))
         Wb[t] = (1 - ϵ1)*Wb[t-1] + ϵ1*max(0, ϵ3*(Πcb[t-1] + Πkb[t-1] + r*L[t-1]) + ϵ4*(Hb[t-1] - M[t-1]))
         Tec[t] = γ1*Kc[t-1]
         Tek[t] = γ1*Kk[t-1]
@@ -268,8 +269,8 @@ function run()
         Mw[t] = Mw[t-1] + ΔMw[t]
         EciT[t] = κ4*NWie[t]*(C[t] + G[t])/(C[t] + G[t] + Ic[t] + Ig[t])
         EkiT[t] = κ4*NWie[t]*(Ic[t] + Ig[t])/(C[t] + G[t] + Ic[t] + Ig[t])
-        EcbT[t] = ((1 - κ5)*Ecb[t-1] + κ5*rE[t-1]*(L[t] + Ecb[t-1] + Ekb[t-1])/(r + rE[t-1]))*Ec[t-1]/(Ec[t-1] + Ek[t-1])
-        EkbT[t] = ((1 - κ5)*Ekb[t-1] + κ5*rE[t-1]*(L[t] + Ecb[t-1] + Ekb[t-1])/(r + rE[t-1]))*Ek[t-1]/(Ec[t-1] + Ek[t-1])
+        EcbT[t] = ((1 - κ5)*Ecb[t-1] + κ5*rE[t-1]*(L[t-1] + Ecb[t-1] + Ekb[t-1])/(r + rE[t-1]))*Ec[t-1]/(Ec[t-1] + Ek[t-1])
+        EkbT[t] = ((1 - κ5)*Ekb[t-1] + κ5*rE[t-1]*(L[t-1] + Ecb[t-1] + Ekb[t-1])/(r + rE[t-1]))*Ek[t-1]/(Ec[t-1] + Ek[t-1])
         pec[t] = (EciT[t] + EcbT[t])/ec[t]
         pek[t] = (EkiT[t] + EkbT[t])/ek[t]
         Δpec[t], Δpek[t] = pec[t] - pec[t-1], pek[t] - pek[t-1]
