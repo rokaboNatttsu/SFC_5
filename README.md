@@ -68,8 +68,8 @@
 - $i_c = \frac{i_c^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
 - $i_k = \frac{i_k^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
 - $i_g = \frac{i_g^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
-- $\Delta e_c = \max(0, \frac{\kappa_1 (p_k i_c^D-\beta_1 K_{c-1})}{p_{ec-1}}) - \max(0, \frac{\kappa_2 (M_{c-1} - L_{c-1})}{p_{ec-1}} - \kappa_3 (c + g))$
-- $\Delta e_k = \max(0, \frac{\kappa_1 (p_k i_k^D-\beta_1 K_{k-1})}{p_{ek-1}}) - \max(0, \frac{\kappa_2 (M_{k-1} - L_{k-1})}{p_{ek-1}} - \kappa_3 (i_c + i_g))$
+- $\Delta e_c = \max(0, \frac{\kappa_1 (p_k i_c^D-\beta_1 K_{c-1})}{p_{ec-1}}) - \max(0, \frac{(\kappa_2 + \max(0, \kappa_3 (u^T - u_{c-1}))) (M_{c-1} - L_{c-1})}{p_{ec-1}})$
+- $\Delta e_k = \max(0, \frac{\kappa_1 (p_k i_k^D-\beta_1 K_{k-1})}{p_{ek-1}}) - \max(0, \frac{(\kappa_2 + \max(0, \kappa_3*(u^T - u_{k-1}))) (M_{k-1} - L_{k-1})}{p_{ek-1}})$
 - $T_{ii} = \tau_1 (\Pi_{ci-1} + \Pi_{ki-1})$
 - $T_{iw} = \tau_1 W_{-1}$
 - $T_{fc} = \tau_2 (C+G-W_c-T_{ec}-r L_{c-1})$
@@ -331,8 +331,8 @@
 - $\iota_4 = 0.5$
 - $\iota_5 = 5.0$
 - $\kappa_1 = 0.5$
-- $\kappa_2 = 0.02$
-- $\kappa_3 = 0.02$
+- $\kappa_2 = 0.01$
+- $\kappa_3 = 0.1$
 - $\kappa_4 = 0.9$
 - $\kappa_5 = 0.5$
 - $\lambda_e = 0.5$
@@ -345,4 +345,4 @@
 - $G_0 = 1$
 - $r = 0.01$
 - $mu_c = 0.3$
-- $mu_k = 0.3$
+- $mu_k = 0.5$

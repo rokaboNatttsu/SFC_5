@@ -15,14 +15,14 @@ for t = 2:T
 end
 θ1, θ2 = 0.4, 0.1
 ι1, ι2, ι3, ι4, ι5 = 0.1, 1.0, 2.0, 0.5, 5.0
-κ1, κ2, κ3, κ4, κ5 = 0.5, 0.02, 0.02, 0.9, 0.5
+κ1, κ2, κ3, κ4, κ5 = 0.5, 0.01, 0.1, 0.9, 0.5
 λe = 0.5
 μ1, μ2, μ3 = 0.3, 0.1, 0.5
 τ1, τ2 = 0.2, 0.2
 uT = 0.8
 G0 = 100.0
 r = 0.01
-muc, muk = 0.3, 0.3
+muc, muk = 0.3, 0.5
 
 #   配列定義
 Wc, Wk, Wb, Wg, W, wg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
@@ -213,10 +213,10 @@ function run()
         Δkc[t], Δkk[t], Δkg[t] = kc[t] - kc[t-1], kk[t] - kk[t-1], kg[t] - kg[t-1]
         ΔKc[t], ΔKk[t], ΔKg[t] = Kc[t] - Kc[t-1], Kk[t] - Kk[t-1], Kg[t] - Kg[t-1]
         ΔK[t], K[t], Δk[t], k[t] = ΔKc[t] + ΔKk[t] + ΔKg[t], Kc[t] + Kk[t] + Kg[t], Δkc[t] + Δkk[t] + Δkg[t], kc[t] + kk[t] + kg[t]
-        Δec[t] = max(0, κ1*(pk[t]*icD[t] - β1*Kc[t-1])/pec[t-1]) - max(0, κ2*(Mc[t-1] - Lc[t-1])/pec[t-1] - κ3*(c[t]+g[t]))
+        Δec[t] = max(0, κ1*(pk[t]*icD[t] - β1*pk[t]*kc[t-1])/pec[t-1]) - max(0, (κ2 + max(0, κ3*(uT - uc[t-1])))*(Mc[t-1] - Lc[t-1])/pec[t-1])
         #TODO 株式発行部数の増減により、企業の資金調達のインプットーアウトプットの大きさが実質消費に比例する程度にできないか
         ec[t] = ec[t-1] + Δec[t]
-        Δek[t] = max(0, κ1*(pk[t]*ikD[t] - β1*Kk[t-1])/pek[t-1]) - max(0, κ2*(Mk[t-1] - Lk[t-1])/pek[t-1] - κ3*(ic[t] + ig[t]))
+        Δek[t] = max(0, κ1*(pk[t]*ikD[t] - β1*pk[t]*kk[t-1])/pek[t-1]) - max(0, (κ2 + max(0, κ3*(uT - uk[t-1])))*(Mk[t-1] - Lk[t-1])/pek[t-1])
         ek[t] = ek[t-1] + Δek[t]
         Tii[t] = τ1*(Πci[t-1] + Πki[t-1])
         ΔTii[t] = Tii[t] - Tii[t-1]
