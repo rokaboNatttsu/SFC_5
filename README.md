@@ -16,10 +16,7 @@
 
 要修正まとめ
 
-- $i_g^D$ と $g^D$ が比例して増えない。同調するように
-- $\delta_1$ と $\zeta_4$ を同じにしたときに、価格が一定で推移するように
-- $\delta_1 > \zeta_4$ のときに、インフレするように
-- $\delta_1 < \zeta_4$ のときに、デフレするように
+- 資本財生産企業と消費財生産企業の株式の新規発行及び自社株買いのアルゴリズムを見直す。長期的に、実質の生産量の推移と概ね比例するようなアルゴリズムを作りたい
 - 振動が収束するように
 
 # 2. モデルでやりたいことリスト
@@ -47,16 +44,16 @@
 
 - $\zeta_2 = \zeta_{2-1} (1 + \zeta_4)$
 - $\zeta_3 = \zeta_{3-1} (1 + \zeta_4)$
-- $W_c = (1 - \epsilon_7) W_{c-1} + \epsilon_7 ((1 - \epsilon_6)\Omega_c + \epsilon_6 W_{c-1} \exp(\epsilon_2 (u_{c-1} - u^T)))$
-- $W_k = (1 - \epsilon_7) W_{k-1} + \epsilon_7 ((1 - \epsilon_6)\Omega_k + \epsilon_6 W_{k-1} \exp(\epsilon_2 (u_{k-1} - u^T)))$
+- $W_c = (1 - \epsilon_7) W_{c-1} + \epsilon_7 ((1 - \epsilon_6)\Omega_c + \epsilon_6 W_{c-1} \exp(\epsilon_2 ((C_{w-1}^D + C_{i-1}^D + G_{-1}^D)/(p_{-1} \min(\zeta_1 (k_{c-1}-Δk_{c-1}), \zeta_{2-1})) - u^T)))$
+- $W_k = (1 - \epsilon_7) W_{k-1} + \epsilon_7 ((1 - \epsilon_6)\Omega_k + \epsilon_6 W_{k-1} \exp(\epsilon_2 ((i_{c-1}^D + i_{k-1}^D + i_{g-1}^D)/(min(\zeta_5 (k_{k-1}-Δk_{k-1}), \zeta_{3-1})) - u^T)))$
 - $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_3(\Pi_{cb-1} + \Pi_{kb-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
 - $T_{ec} = \gamma_1 K_{c-1}$
 - $T_{ek} = \gamma_1 K_{k-1}$
 - $T_{ei} = \gamma_2 (M_{i-1} + E_{ci-1} + E_{ki-1})$
 - $T_{ew} = \gamma_2 (M_{w-1} + H_{w-1})$
-- $p = \frac{p_k i_c^e W_c+T_{ec}+T_{fc}^e+r L_{c-1}}{c^e+g^e}$
+- $p = (1 + mu_c) \frac{p_k i_c^e +  W_c+T_{ec}+T_{fc}^e+r L_{c-1}}{c^e+g^e}$
   - $p = p_{-1} \exp\{\mu_3 \min(1, \max(u_{c-1}^e, \frac{C_{w-1}^D + C_{i-1}^D + G_{-1}^D}{p_{-1} \zeta_{2-1}}) - u^T)\}$
-- $p_k = \frac{W_k+T_{ek}+T_{fk}^e+r L_{k-1}}{i_c^e+i_g^e}$
+- $p_k = (1 + mu_k) \frac{W_k+T_{ek}+T_{fk}^e+r L_{k-1}}{i_c^e+i_g^e}$
   - $p_k = p_{k-1} \exp\{\mu_3 \min(1, \max(u_{k-1}^e, \frac{I_{f-1}^D + I_{g-1}^D}{p_{k-1} \zeta_{3-1}}) - u^T)\}$
 - $w_g = w_{g-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
 - $g^D = g^D_{-1}(1 + \delta_1 - \delta_2 \frac{p-p_{-1}}{p_{-1}})$
@@ -71,8 +68,8 @@
 - $i_c = \frac{i_c^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
 - $i_k = \frac{i_k^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
 - $i_g = \frac{i_g^D}{\max(1, \frac{i_c^D + i_k^D + i_g^D}{\min(\zeta_5 k_{k-1}, \zeta_3)})}$
-- $\Delta e_c = \max(0, \frac{\kappa_1 (p_k i_c^D-\beta_1 K_{c-1})}{p_{ec-1}}) - \max(0, \frac{\kappa_2 (M_{c-1} - L_{c-1})}{p_{ec-1}} - \kappa_3 c)$
-- $\Delta e_k = \max(0, \frac{\kappa_1 (p_k i_k^D-\beta_1 K_{k-1})}{p_{ek-1}}) - \max(0, \frac{\kappa_2 (M_{k-1} - L_{k-1})}{p_{ek-1}} - \kappa_3 c)$
+- $\Delta e_c = \max(0, \frac{\kappa_1 (p_k i_c^D-\beta_1 K_{c-1})}{p_{ec-1}}) - \max(0, \frac{\kappa_2 (M_{c-1} - L_{c-1})}{p_{ec-1}} - \kappa_3 (c + g))$
+- $\Delta e_k = \max(0, \frac{\kappa_1 (p_k i_k^D-\beta_1 K_{k-1})}{p_{ek-1}}) - \max(0, \frac{\kappa_2 (M_{k-1} - L_{k-1})}{p_{ek-1}} - \kappa_3 (i_c + i_g))$
 - $T_{ii} = \tau_1 (\Pi_{ci-1} + \Pi_{ki-1})$
 - $T_{iw} = \tau_1 W_{-1}$
 - $T_{fc} = \tau_2 (C+G-W_c-T_{ec}-r L_{c-1})$
@@ -100,10 +97,7 @@
 
 # 4. 定義式
 
-- $x^e = ((1 - \lambda_e) x^e_{-1} + \lambda_e x_{-1}) \frac{x_{-1}}{x_{-1}-\Delta x_{-1}}$
-  - ただし $x^e \geq 0$ の変数
 - $x^e = ((1 - \lambda_e) x^e_{-1} + \lambda_e x_{-1})$
-  - ただし $x^e < 0$ の可能性がある変数
 - $u_c = \frac{c + g}{\zeta_1 k_{c-1}}$
 - $u_k = \frac{i_f + i_g}{\zeta_5 k_{k-1}}$
 - $NL_w = -C_w+W-T_{iw}-T_{ew}-r L_{w-1}$
@@ -312,7 +306,7 @@
 - $\alpha_5 = 0.1$
 - $\alpha_6 = 0.5$
 - $\beta_1 = 0.05$
-- $\beta_2 = 0.5$
+- $\beta_2 = 1.0$
 - $\gamma_1 = 0.015$
 - $\gamma_2 = 0.02$
 - $\delta_1 = 0.02$
@@ -322,7 +316,7 @@
 - $\epsilon_3 = 0.7$
 - $\epsilon_4 = 0.05$
 - $\epsilon_5 = 0.695$
-- $\epsilon_6 = 0.3$
+- $\epsilon_6 = 0.7$
 - $\epsilon_7 = 0.3$
 - $\zeta_1 = 1.0$
 - $\zeta_2 = 150.0$ (バーンイン期間の初期値)
@@ -350,4 +344,5 @@
 - $u^T = 0.8$
 - $G_0 = 1$
 - $r = 0.01$
-
+- $mu_c = 0.3$
+- $mu_k = 0.3$

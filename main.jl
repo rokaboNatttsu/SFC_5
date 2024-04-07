@@ -4,10 +4,10 @@ T = 350
 
 #   パラメータ設定
 α1, α2, α3, α4, α5, α6 = 0.9, 0.1, 0.1, 0.02, 0.1, 0.5
-β1, β2 = 0.05, 0.5
+β1, β2 = 0.05, 1.0
 γ1, γ2 = 0.015, 0.02
 δ1, δ2 = fill(0.02, T), 0.3 #   0.2, 0.3
-ϵ1, ϵ2, ϵ3, ϵ4, ϵ5, ϵ6, ϵ7 = 0.5, 1.0, 0.7, 0.05, 0.693, 0.3, 0.3
+ϵ1, ϵ2, ϵ3, ϵ4, ϵ5, ϵ6, ϵ7 = 0.5, 1.0, 0.7, 0.05, 0.693, 0.7, 0.3
 ζ1, ζ2, ζ3, ζ4, ζ5 = 1.0, fill(150.0, T), fill(150.0, T), 0.02, 1.0  #   1.0, 150.0, 150.0, 0.02, 1.0
 for t = 2:T
     ζ2[t] = ζ2[t-1]*(1 + ζ4)    #   ここ元に戻す
@@ -22,7 +22,7 @@ end
 uT = 0.8
 G0 = 100.0
 r = 0.01
-muc, muk = 0.35, 0.35
+muc, muk = 0.3, 0.3
 
 #   配列定義
 Wc, Wk, Wb, Wg, W, wg = zeros(T), zeros(T), zeros(T), zeros(T), zeros(T), zeros(T)
@@ -154,40 +154,24 @@ end
 function run()
     #   シミュレーション実行
     for t = 2:T
-        if (Tfc[t-1] == 0.0) | (Tfc[t-1]-ΔTfc[t-1] == 0.0)
-            Tfce[t] = 0.0
-        else
-            Tfce[t] = ((1 - λe)*Tfce[t-1] + λe*Tfc[t-1])*Tfc[t-1]/(Tfc[t-1]-ΔTfc[t-1])
-        end
-        ce[t] = ((1 - λe)*ce[t-1] + λe*c[t-1])*c[t-1]/(c[t-1]-Δc[t-1])
-        ge[t] = ((1 - λe)*ge[t-1] + λe*g[t-1])*g[t-1]/(g[t-1]-Δg[t-1])
-        if (Tfk[t-1] == 0.0) | (Tfk[t-1]-ΔTfk[t-1] == 0.0)
-            Tfke[t] = 0.0
-        else
-            Tfke[t] = ((1 - λe)*Tfke[t-1] + λe*Tfk[t-1])*Tfk[t-1]/(Tfk[t-1]-ΔTfk[t-1])
-        end
-        if (ic[t-1] == 0.0) | (ic[t-1]-Δic[t-1] == 0.0)
-            ice[t] = 0.0
-        else
-            ice[t] = ((1 - λe)*ice[t-1] + λe*ic[t-1])*ic[t-1]/(ic[t-1]-Δic[t-1])
-        end
-        ige[t] = ((1 - λe)*ige[t-1] + λe*ig[t-1])*ig[t-1]/(ig[t-1]-Δig[t-1])
-        We[t] = ((1 - λe)*We[t-1] + λe*W[t-1])*W[t-1]/(W[t-1]-ΔW[t-1])
-        Tiwe[t] = ((1 - λe)*Tiwe[t-1] + λe*Tiw[t-1])*Tiw[t-1]/(Tiw[t-1]-ΔTiw[t-1])
-        Tewe[t] = ((1 - λe)*Tewe[t-1] + λe*Tew[t-1])*Tew[t-1]/(Tew[t-1]-ΔTew[t-1])
+        Tfce[t] = ((1 - λe)*Tfce[t-1] + λe*Tfc[t-1])
+        ce[t] = ((1 - λe)*ce[t-1] + λe*c[t-1])
+        ge[t] = ((1 - λe)*ge[t-1] + λe*g[t-1])
+        Tfke[t] = ((1 - λe)*Tfke[t-1] + λe*Tfk[t-1])
+        ice[t] = ((1 - λe)*ice[t-1] + λe*ic[t-1])
+        ige[t] = ((1 - λe)*ige[t-1] + λe*ig[t-1])
+        We[t] = ((1 - λe)*We[t-1] + λe*W[t-1])
+        Tiwe[t] = ((1 - λe)*Tiwe[t-1] + λe*Tiw[t-1])
+        Tewe[t] = ((1 - λe)*Tewe[t-1] + λe*Tew[t-1])
         Πcie[t] = ((1 - λe)*Πcie[t-1] + λe*Πci[t-1])
         Πkie[t] = ((1 - λe)*Πkie[t-1] + λe*Πki[t-1])
-        if (Tii[t-1] == 0.0) | (Tii[t-1]-ΔTii[t-1] == 0.0)
-            Tiie[t] = 0.0
-        else
-            Tiie[t] = ((1 - λe)*Tiie[t-1] + λe*Tii[t-1])*Tii[t-1]/(Tii[t-1]-ΔTii[t-1])
-        end
-        Teie[t] = ((1 - λe)*Teie[t-1] + λe*Tei[t-1])*Tei[t-1]/(Tei[t-1]-ΔTei[t-1])
+        Tiie[t] = ((1 - λe)*Tiie[t-1] + λe*Tii[t-1])
+        Teie[t] = ((1 - λe)*Teie[t-1] + λe*Tei[t-1])
         NWie[t] = ((1 - λe)*NWie[t-1] + λe*NWi[t-1])
 
         Ωc, Ωk = ϵ5*p[t-1]*(c[t-1] + g[t-1]), ϵ5*p[t-1]*(ic[t-1] + ig[t-1])
-        Wc[t] = (1 - ϵ7)*Wc[t-1] + ϵ7*((1 - ϵ6)*Ωc + ϵ6*Wc[t-1]*exp(ϵ2*(uc[t-1] - uT)))
-        Wk[t] = (1 - ϵ7)*Wk[t-1] + ϵ7*((1 - ϵ6)*Ωk + ϵ6*Wk[t-1]*exp(ϵ2*(uk[t-1] - uT)))
+        Wc[t] = (1 - ϵ7)*Wc[t-1] + ϵ7*((1 - ϵ6)*Ωc + ϵ6*Wc[t-1]*exp(ϵ2*((CwD[t-1] + CiD[t-1] + GD[t-1])/(p[t-1]*min(ζ1*(kc[t-1]-Δkc[t-1]), ζ2[t-1])) - uT)))
+        Wk[t] = (1 - ϵ7)*Wk[t-1] + ϵ7*((1 - ϵ6)*Ωk + ϵ6*Wk[t-1]*exp(ϵ2*((icD[t-1] + ikD[t-1] + igD[t-1])/(min(ζ5*(kk[t-1]-Δkk[t-1]), ζ3[t-1])) - uT)))
         Wb[t] = (1 - ϵ1)*Wb[t-1] + ϵ1*max(0, ϵ3*(Πcb[t-1] + Πkb[t-1] + r*L[t-1]) + ϵ4*(Hb[t-1] - M[t-1]))
         Tec[t] = γ1*Kc[t-1]
         Tek[t] = γ1*Kk[t-1]
@@ -229,9 +213,10 @@ function run()
         Δkc[t], Δkk[t], Δkg[t] = kc[t] - kc[t-1], kk[t] - kk[t-1], kg[t] - kg[t-1]
         ΔKc[t], ΔKk[t], ΔKg[t] = Kc[t] - Kc[t-1], Kk[t] - Kk[t-1], Kg[t] - Kg[t-1]
         ΔK[t], K[t], Δk[t], k[t] = ΔKc[t] + ΔKk[t] + ΔKg[t], Kc[t] + Kk[t] + Kg[t], Δkc[t] + Δkk[t] + Δkg[t], kc[t] + kk[t] + kg[t]
-        Δec[t] = max(0, κ1*(pk[t]*icD[t] - β1*Kc[t-1])/pec[t-1]) - max(0, κ2*(Mc[t-1] - Lc[t-1])/pec[t-1])# - κ3*(c[t]+g[t]))
+        Δec[t] = max(0, κ1*(pk[t]*icD[t] - β1*Kc[t-1])/pec[t-1]) - max(0, κ2*(Mc[t-1] - Lc[t-1])/pec[t-1] - κ3*(c[t]+g[t]))
+        #TODO 株式発行部数の増減により、企業の資金調達のインプットーアウトプットの大きさが実質消費に比例する程度にできないか
         ec[t] = ec[t-1] + Δec[t]
-        Δek[t] = max(0, κ1*(pk[t]*ikD[t] - β1*Kk[t-1])/pek[t-1]) - max(0, κ2*(Mk[t-1] - Lk[t-1])/pek[t-1])# - κ3*(ic[t] + ig[t]))
+        Δek[t] = max(0, κ1*(pk[t]*ikD[t] - β1*Kk[t-1])/pek[t-1]) - max(0, κ2*(Mk[t-1] - Lk[t-1])/pek[t-1] - κ3*(ic[t] + ig[t]))
         ek[t] = ek[t-1] + Δek[t]
         Tii[t] = τ1*(Πci[t-1] + Πki[t-1])
         ΔTii[t] = Tii[t] - Tii[t-1]
@@ -493,6 +478,11 @@ function plot_transition()
     plot!(Πkk[end-150:end], label="Πkk")
     plot!(Πkb[end-150:end], label="Πkb")
     savefig("figs/Πc.png")
+
+    plot(cw[end-150:end], label="cw")
+    plot!(ci[end-150:end], label="ci")
+    plot!(c[end-150:end], label="c")
+    savefig("figs/c.png")
 end
 plot_transition()
 
