@@ -20,6 +20,7 @@
 - $\delta_1$ と $\zeta_4$ を同じにしたときに、価格が一定で推移するように
 - $\delta_1 > \zeta_4$ のときに、インフレするように
 - $\delta_1 < \zeta_4$ のときに、デフレするように
+- 振動が収束するように
 
 # 2. モデルでやりたいことリスト
 
@@ -44,10 +45,10 @@
 
 # 3. 行動方程式、上から計算
 
-- $\zeta_2 = \zeta_{2-1} (1 + \zeta_4 \cdot abs(randn()))$
-- $\zeta_3 = \zeta_{3-1} (1 + \zeta_4 \cdot abs(randn()))$
-- $W_c = (1 - \epsilon_1)\Omega_c + \epsilon_1 W_{c-1} \exp(\epsilon_2 (u_{c-1} - u^T))$
-- $W_k = (1 - \epsilon_1)\Omega_k + \epsilon_1 W_{k-1} \exp(\epsilon_2 (u_{k-1} - u^T))$
+- $\zeta_2 = \zeta_{2-1} (1 + \zeta_4)$
+- $\zeta_3 = \zeta_{3-1} (1 + \zeta_4)$
+- $W_c = (1 - \epsilon_7) W_{c-1} + \epsilon_7 ((1 - \epsilon_6)\Omega_c + \epsilon_6 W_{c-1} \exp(\epsilon_2 (u_{c-1} - u^T)))$
+- $W_k = (1 - \epsilon_7) W_{k-1} + \epsilon_7 ((1 - \epsilon_6)\Omega_k + \epsilon_6 W_{k-1} \exp(\epsilon_2 (u_{k-1} - u^T)))$
 - $W_b = (1 - \epsilon_1)W_{b-1} + \epsilon_1 \cdot \max(0, \epsilon_3(\Pi_{cb-1} + \Pi_{kb-1} + r L_{-1}) + \epsilon_4 (H_{b-1} - M_{-1}))$
 - $T_{ec} = \gamma_1 K_{c-1}$
 - $T_{ek} = \gamma_1 K_{k-1}$
@@ -321,10 +322,12 @@
 - $\epsilon_3 = 0.7$
 - $\epsilon_4 = 0.05$
 - $\epsilon_5 = 0.695$
+- $\epsilon_6 = 0.3$
+- $\epsilon_7 = 0.3$
 - $\zeta_1 = 1.0$
 - $\zeta_2 = 150.0$ (バーンイン期間の初期値)
 - $\zeta_3 = 150.0$ (バーンイン期間の初期値)
-- $\zeta_4 = 0.03$
+- $\zeta_4 = 0.02$
 - $\zeta_5 = 1.0$
 - $\theta_1 = 0.4$
 - $\theta_2 = 0.1$
